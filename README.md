@@ -42,7 +42,7 @@ Minimal usage:
 ```puppet
 class { 'transip':
   username => 'TransIP control panel username',
-  ip => 'TransIP API whitelisted ip address',
+  ip       => 'TransIP API whitelisted ip address',
   key_file => 'filename containing your TransIP private key'
 }
 ```
@@ -108,8 +108,8 @@ The content of a record. This can be specified as an array, if this array has mu
 ```puppet
 dns_record {
   'www.my.domain/A':
-    ensure => 'present',
-    ttl => '300',
+    ensure  => 'present',
+    ttl     => '300',
     content => ['192.0.2.1', '192.0.2.2'];
 }
 ```
