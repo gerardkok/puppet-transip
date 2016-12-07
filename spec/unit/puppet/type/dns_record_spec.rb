@@ -30,7 +30,9 @@ describe Puppet::Type.type(:dns_record) do
           :ensure => 'foo',
         })}.to raise_error(Puppet::Error, /Invalid value/)
     end
+  end
 
+  describe 'title patterns' do
     it "should recognise the part before the slash as fqdn" do
       expect(described_class.new({
         :name => 'host.example.com/A'

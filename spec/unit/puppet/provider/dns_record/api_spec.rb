@@ -72,4 +72,22 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
     end
   end
 
+  context 'record for unmanaged domain' do
+    let(:resource) { Puppet::Type.type(:dns_record).new(
+      { :ensure   => :present,
+        :name     => 'www.example.eu/A',
+        :ttl      => 3600,
+        :content  => ['192.0.2.1'],
+        :provider => described_class.name
+      }
+      )}
+    let(:provider) { resource.provider }
+    before :each do
+      described_class.expects(:domain_names).returns ['example.com']
+    end
+    it 'should error out when creating host.example.eu/A' do
+      expect { provider.flush }.to raise_error(Puppet::Error)
+    end
+  end
+
 end
