@@ -7,12 +7,19 @@ class transip (
   $dns_records = {
   }
 ) inherits ::transip::params {
-  file { '/etc/transip/credentials':
-    ensure  => 'present',
-    owner   => $owner,
-    group   => $group,
-    mode    => '0600',
-    content => template('transip/credentials.erb');
+  file {
+    '/etc/transip':
+      ensure => 'directory',
+      owner  => $owner,
+      group  => $group,
+      mode   => '0700';
+
+    '/etc/transip/credentials':
+      ensure  => 'present',
+      owner   => $owner,
+      group   => $group,
+      mode    => '0600',
+      content => template('transip/credentials.erb');
   }
 
   create_resources(dns_record, $dns_records)

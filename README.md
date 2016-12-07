@@ -34,6 +34,14 @@ The provider uses the TransIP [API](https://www.transip.nl/transip/api/) to hand
 * An account to access TransIP's [control panel](https://www.transip.nl/cp/) is required, and API access needs to be enabled for this account. How to enable the API is described in https://www.transip.nl/vragen/205-hoe-schakel-transip-api-in/.
 * The [transip](https://github.com/joost/transip) ruby gem.
 
+For Puppet 4, the gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. Depending on the ruby version included in the Puppet Agent, this install needs to be masaged a bit. With Puppet Agent 1.8.0 (ruby 2.1.0), this worked for me:
+```bash
+$ /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.5
+$ /opt/puppetlabs/puppet/bin/gem install activesupport -v 4.2.7.1
+$ /opt/puppetlabs/puppet/bin/gem install bundler
+$ /opt/puppetlabs/puppet/bin/gem install transip
+```
+
 ### Beginning with puppet-transip
 
 This module should be enabled on one of your instances that is allowed to access the TransIP API over the Internet. It is perfectly possible to run this module on multiple instances, just be aware of interference when you're going to manage the same dns records. The TransIP API requires that you whitelist the public ip address of this instance.
@@ -87,6 +95,14 @@ A public ip address whitelisted to use TransIP's API. Set this on the [API tab o
 
 Filename of the file containing your private key to access the TransIP API. Get this from the API tab of your control panel.
 
+##### `owner`
+
+The owner of the file containing the credentials. Default: depends on your operating system.
+
+##### `group`
+
+The group of the file containing the credentials. Default: depends on your operating system.
+
 #### `dns_record` type
 
 ##### `name`
@@ -122,6 +138,12 @@ The TTL field of a dns records. Defaults to 3600 seconds.
 ## Limitations
 
 Currently tested on Ubuntu 16.04 only, with a very limited number of domains and dns records.
+
+The locations of the credentials file is currently fixed to `/etc/transip/credentials`.
+
+## Development
+
+Run `rake spec` to run all tests.
 
 ## Release Notes
 

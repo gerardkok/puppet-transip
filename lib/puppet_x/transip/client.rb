@@ -1,5 +1,4 @@
 require 'yaml'
-#require 'transip'
 
 module Transip
   CREDENTIALS_FILE = '/etc/transip/credentials'
