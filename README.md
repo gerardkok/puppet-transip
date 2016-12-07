@@ -41,9 +41,9 @@ This module should be enabled on one of your instances that is allowed to access
 Minimal usage:
 ```puppet
 class { 'transip':
-  username: 'TransIP control panel username',
-  ip: 'TransIP API whitelisted ip address',
-  key_file: 'filename containing your TransIP private key'
+  username => 'TransIP control panel username',
+  ip => 'TransIP API whitelisted ip address',
+  key_file => 'filename containing your TransIP private key'
 }
 ```
 
@@ -87,7 +87,7 @@ A public ip address whitelisted to use TransIP's API. Set this on the [API tab o
 
 Filename of the file containing your private key to access the TransIP API. Get this from the API tab of your control panel.
 
-#### `dns_record`` type
+#### `dns_record` type
 
 ##### `name`
 
