@@ -63,7 +63,7 @@ transip::dns_records:
     content: '192.0.2.1'
   'my.domain/MX':
     ensure: 'present'
-    ttl: '86400',
+    ttl: '86400'
     content: '10 mail.my.domain.'
 ~~~
 
@@ -73,55 +73,55 @@ The module provides the ``dns_record`` custom type that has an ``api`` provider.
 
 ### Parameters
 
-The ``transip`` class takes the following:
+#### `transip` class
 
-#### `username`
+##### `username`
 
 The username used to access TransIP's control panel.
 
-#### `ip`
+##### `ip`
 
 A public ip address whitelisted to use TransIP's API. Set this on the [API tab of the control panel](https://www.transip.nl/cp/account/api/)
 
-#### `key_file`
+##### `key_file`
 
 Filename of the file containing your private key to access the TransIP API. Get this from the API tab of your control panel.
 
-The ``dns_record`` type takes the following:
+#### `dns_record`` type
 
-#### `name`
+##### `name`
 
 The fully qualified domain name plus the type of your record, formatted like 'fqdn/type'. If you omit '/type', type defaults to 'A'.
 The origin sign '@' can be omitted. For example, if you want to create an MX record for your domain, use 'my.domain/MX' as dns_record name.
 
-#### `fqdn`
+##### `fqdn`
 
 The fully qualified domain name. The fqdn will be matched against your TransIP domains, no match will result in an error. Defaults to the part of the `name` before the '/', or just `name` if `name` doesn't contain a '/'.
 
-#### `type`
+##### `type`
 
 The type of the record. Possible values: 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV'. Defaults to the part of the `name` after the '/', or just 'A' if `name` doesn't contain a '/'.
 
-#### `content`
+##### `content`
 
 The content of a record. This can be specified as an array, if this array has multiple entries, a record is created for each entry in your domain. For example, the puppet resource
 ```puppet
 dns_record {
   'www.my.domain/A':
-    ensure => 'present'
-    ttl => '300'
+    ensure => 'present',
+    ttl => '300',
     content => ['192.0.2.1', '192.0.2.2'];
 }
 ```
 will result in two A records for 'www.my.domain' in TransIP's dns tables.
 
-#### `ttl`
+##### `ttl`
 
 The TTL field of a dns records. Defaults to 3600 seconds.
 
 ## Limitations
 
-Currently tested on Ubuntu 16.04 only.
+Currently tested on Ubuntu 16.04 only, with a very limited number of domains and dns records.
 
 ## Release Notes
 
@@ -130,4 +130,3 @@ First release, no fancy options yet.
 ## Disclaimer
 
 Use at your own risk.
-
