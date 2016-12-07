@@ -14,6 +14,8 @@
 5. [Reference](#reference)
 5. [Limitations](#limitations)
 6. [Development](#development)
+7. [Release notes](#release-notes)
+8. [Disclaimer](#disclaimer)
 
 ## Overview
 
@@ -36,11 +38,12 @@ The provider uses the TransIP [API](https://www.transip.nl/transip/api/) to hand
 
 For Puppet 4, the gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. Depending on the ruby version included in the Puppet Agent, this install needs to be masaged a bit. With Puppet Agent 1.8.0 (ruby 2.1.0), this worked for me:
 ```bash
-$ /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.5
-$ /opt/puppetlabs/puppet/bin/gem install activesupport -v 4.2.7.1
-$ /opt/puppetlabs/puppet/bin/gem install bundler
-$ /opt/puppetlabs/puppet/bin/gem install transip
+$ sudo /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.5
+$ sudo /opt/puppetlabs/puppet/bin/gem install activesupport -v 4.2.7.1
+$ sudo /opt/puppetlabs/puppet/bin/gem install bundler
+$ sudo /opt/puppetlabs/puppet/bin/gem install transip
 ```
+Because the `dns_record` type does not reference this gem, it shouldn't be needed to install it for use with Puppet Server on your puppet master.
 
 ### Beginning with puppet-transip
 
@@ -133,7 +136,7 @@ will result in two A records for 'www.my.domain' in TransIP's dns tables.
 
 ##### `ttl`
 
-The TTL field of a dns records. Defaults to 3600 seconds.
+The TTL field of a dns record. Defaults to 3600 seconds.
 
 ## Limitations
 
