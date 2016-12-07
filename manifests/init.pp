@@ -2,13 +2,15 @@ class transip (
   $username,
   $ip,
   $key_file,
+  $owner       = $::transip::params::owner,
+  $group       = $::transip::params::group,
   $dns_records = {
   }
-) {
+) inherits ::transip::params {
   file { '/etc/transip/credentials':
     ensure  => 'present',
-    owner   => 'root',
-    group   => 'root',
+    owner   => $owner,
+    group   => $group,
     mode    => '0600',
     content => template('transip/credentials.erb');
   }
