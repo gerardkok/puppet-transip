@@ -14,5 +14,5 @@ describe 'transip', :type => 'class' do
     }
   end
 
-  it { is_expected.to contain_file('/etc/transip/credentials') }
+  it { is_expected.to contain_file('/etc/puppetlabs/puppet/transip.yaml') }
 end

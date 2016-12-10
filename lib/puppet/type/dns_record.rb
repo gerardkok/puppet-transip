@@ -54,7 +54,7 @@ Puppet::Type.newtype(:dns_record) do
   end
 
   autorequire(:file) do
-    Transip::CREDENTIALS_FILE
+    Transip::Client.config_file
   end
 
   def self.title_patterns

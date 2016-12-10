@@ -1,14 +1,18 @@
 require 'yaml'
+require 'puppet'
 
 module Transip
-  CREDENTIALS_FILE = '/etc/transip/credentials'
   class Client
+    def self.config_file
+      @config_file ||= File.expand_path(File.join(Puppet.settings[:confdir], 'transip.yaml'))
+    end
+
     def self.credentials
-      @@credentials ||= YAML.load_file(CREDENTIALS_FILE)
+      @@credentials ||= YAML.load_file(@config_file)
     end
 
     def self.domainclient
-      @@domainclient ||= Transip::DomainClient.new(username: credentials['username'], key_file: credentials['key_file'], ip: credentials['ip'], mode: :readwrite)
+      @domainclient ||= Transip::DomainClient.new(username: credentials['username'], key_file: credentials['key_file'], ip: credentials['ip'], mode: :readwrite)
     end
 
     def self.get_domain_names
