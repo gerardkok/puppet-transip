@@ -144,7 +144,7 @@ The TTL field of a dns record. Defaults to 3600 seconds.
 
 Currently tested on Ubuntu 16.04 only, with a very limited number of domains and dns records.
 
-The locations of the credentials file is currently fixed to `/etc/transip/credentials`.
+The locations of the credentials file is currently fixed to `transip.yaml` in the [Puppet confdir](https://docs.puppet.com/puppet/latest/dirs_confdir.html).
 
 ## Development
 
