@@ -36,7 +36,7 @@ The provider uses the TransIP [API](https://www.transip.nl/transip/api/) to hand
 * An account to access TransIP's [control panel](https://www.transip.nl/cp/) is required, and API access needs to be enabled for this account. How to enable the API is described in https://www.transip.nl/vragen/205-hoe-schakel-transip-api-in/.
 * The [transip](https://github.com/joost/transip) ruby gem.
 
-For Puppet 4, the gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. Depending on the ruby version included in the Puppet Agent, this install needs to be masaged a bit. With Puppet Agent 1.8.0 (ruby 2.1.0), this worked for me:
+For Puppet 4, the gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. Depending on the ruby version included in the Puppet Agent, this install needs to be massaged a bit. With Puppet Agent 1.8.0 (ruby 2.1.0), this worked for me:
 ```bash
 $ sudo /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.5
 $ sudo /opt/puppetlabs/puppet/bin/gem install activesupport -v 4.2.7.1
