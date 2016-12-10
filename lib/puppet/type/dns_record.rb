@@ -30,7 +30,8 @@ Puppet::Type.newtype(:dns_record) do
     desc "The content of the DNS record."
 
     validate do |value|
-      fail 'The content of the record must not be blank' if value.empty?
+      fail 'An empty record is not allowed' if value.empty?
+      fail 'The content of a CNAME record cannot have multiple entries' if value.length > 1 && @resource[:type] == 'CNAME'
     end
 
     def insync?(is)
@@ -61,6 +62,10 @@ Puppet::Type.newtype(:dns_record) do
       [ /^(([^\/]*)\/(.*))$/, [ [:name], [:fqdn], [:type] ] ],
       [ /^((.*))$/, [ [:name], [:fqdn] ] ],
     ]
+  end
+
+  validate do
+    fail('The content of the record must not be blank')  if self[:content] && self[:content].empty?
   end
 
 end

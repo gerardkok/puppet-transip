@@ -134,6 +134,8 @@ dns_record {
 ```
 will result in two A records for 'www.my.domain' in TransIP's dns tables.
 
+If `content` is empty, or if `type` is 'CNAME' and `content` has more than one entry, an error is raised.
+
 ##### `ttl`
 
 The TTL field of a dns record. Defaults to 3600 seconds.

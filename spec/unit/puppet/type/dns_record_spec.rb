@@ -44,7 +44,52 @@ describe Puppet::Type.type(:dns_record) do
         :name => 'host.example.com/A'
       })[:type]).to eq('A')
     end
+  end
 
+  describe 'content' do
+    it "should not allow an ampty string as content" do
+      expect { described_class.new({
+          :name    => 'host.example.com/A',
+          :content => ''
+        })}.to raise_error(Puppet::Error, /An empty record is not allowed/)
+    end
+
+    it "should not allow an ampty array as content" do
+      expect { described_class.new({
+          :name    => 'host.example.com/A',
+          :content => []
+        })}.to raise_error(Puppet::Error, /The content of the record must not be blank/)
+    end
+
+    it "should not allow a CNAME record with one content entry" do
+      expect { described_class.new({
+          :name    => 'host.example.com/A',
+          :content => 'record1'
+        })}.to_not raise_error
+    end
+
+    it "should not allow a CNAME record with multiple content entries" do
+      expect { described_class.new({
+          :name    => 'host.example.com/CNAME',
+          :content => ['record1', 'record2']
+        })}.to raise_error(Puppet::Error, /The content of a CNAME record cannot have multiple entries/)
+    end
+
+    it "should allow an A record with multiple content entries" do
+      expect { described_class.new({
+          :name    => 'host.example.com/A',
+          :content => ['record1', 'record2']
+        })}.to_not raise_error
+    end
+  end
+
+  describe 'ttl' do
+    it "should only allow integers" do
+      expect { described_class.new({
+          :name => 'host.example.com/A',
+          :ttl  => 'foo'
+        })}.to raise_error(Puppet::Error, /TTL must be an integer/)
+    end
   end
 
 end
