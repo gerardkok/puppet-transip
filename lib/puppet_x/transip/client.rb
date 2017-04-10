@@ -8,7 +8,7 @@ module Transip
     end
 
     def self.credentials
-      @@credentials ||= YAML.load_file(config_file)
+      @credentials ||= YAML.load_file(config_file)
     end
 
     def self.domainclient

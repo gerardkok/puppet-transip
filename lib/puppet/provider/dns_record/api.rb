@@ -12,9 +12,9 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.prefetch(resources)
-    resources.keys.each do |name|
-      if provider = instances.find { |i| i.name == name }
-        resources[name].provider = provider
+    instances.each do |prov|
+      if resource = resources[prov.name]
+        resource.provider = prov
       end
     end
   end
