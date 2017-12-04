@@ -20,11 +20,11 @@ module Transip
     end
 
     def self.get_entries(domain)
-      domainclient.request(:get_info, :domain_name => domain).to_hash[:domain]['dnsEntries']
+      domainclient.request(:get_info, domain_name: domain).to_hash[:domain]['dnsEntries']
     end
 
     def self.set_entries(domain, entries)
-      domainclient.request(:set_dns_entries, :domain_name => domain, :dns_entries => entries)
+      domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
     end
 
   end
