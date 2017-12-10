@@ -1,5 +1,3 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'puppet_x', 'transip', 'client.rb'))
-
 Puppet::Type.newtype(:dns_record) do
   @doc = 'Manage creation/deletion of DNS records.'
 
@@ -46,10 +44,6 @@ Puppet::Type.newtype(:dns_record) do
     end
 
     defaultto '3600'
-  end
-
-  autorequire(:file) do
-    Transip::Client.config_file
   end
 
   def self.title_patterns

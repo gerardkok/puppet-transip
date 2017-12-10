@@ -1,5 +1,6 @@
 require 'yaml'
 require 'puppet'
+require 'transip' if Puppet.features.transip?
 
 module Transip
   class Client
