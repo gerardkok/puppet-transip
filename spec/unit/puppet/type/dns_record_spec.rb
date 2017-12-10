@@ -69,7 +69,7 @@ describe Puppet::Type.type(:dns_record) do
       end.to raise_error(Puppet::Error, /The content of the record must not be blank/)
     end
 
-    it 'should not allow a CNAME record with one content entry' do
+    it 'should allow a CNAME record with one content entry' do
       expect do
         described_class.new(
           name: 'host.example.com/A',
