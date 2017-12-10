@@ -31,8 +31,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def flush
-    entries = get_entries(domain)
-    entries.reject! { |e| (e['name'] == record) && (e['type'] == @resource[:type]) }
+    entries = get_entries(domain).reject { |e| e['name'] == record && e['type'] == @resource[:type] }
     if @property_hash[:ensure] == :present
       @resource[:content].to_set.each do |c|
         entries << Transip::DnsEntry.new(record, @resource[:ttl], @resource[:type], c)
@@ -41,8 +40,6 @@ Puppet::Type.type(:dns_record).provide(:api) do
     set_entries(domain, entries)
     @property_hash = @resource.to_hash
   end
-
-  private
 
   def domains_re
     domains = domain_names.join('|').gsub('.', '\.')
@@ -60,7 +57,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.domain_names
-    Transip::Client.get_domain_names
+    Transip::Client.domain_names
   rescue Transip::ApiError
     raise Puppet::Error, 'Unable to get domain names'
   end
@@ -75,18 +72,10 @@ Puppet::Type.type(:dns_record).provide(:api) do
     raise Puppet::Error, "Unable to get entries for #{domain}"
   end
 
-  def get_entries(domain)
-    self.class.get_entries(domain)
-  end
-
   def self.set_entries(domain, entries)
     Transip::Client.set_entries(domain, entries)
   rescue Transip::ApiError
     raise Puppet::Error, "Unable to set entries for #{domain}"
-  end
-
-  def set_entries(domain, entries)
-    self.class.set_entries(domain, entries)
   end
 
   def self.entries
@@ -104,5 +93,4 @@ Puppet::Type.type(:dns_record).provide(:api) do
     end
     r
   end
-
 end

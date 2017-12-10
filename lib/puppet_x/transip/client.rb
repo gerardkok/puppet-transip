@@ -15,7 +15,7 @@ module Transip
       @domainclient ||= Transip::DomainClient.new(username: credentials['username'], key_file: credentials['key_file'], ip: credentials['ip'], mode: :readwrite)
     end
 
-    def self.get_domain_names
+    def self.domain_names
       domainclient.request(:get_domain_names)
     end
 
@@ -26,6 +26,5 @@ module Transip
     def self.set_entries(domain, entries)
       domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
     end
-
   end
 end

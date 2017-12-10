@@ -27,8 +27,8 @@ Puppet::Type.newtype(:dns_record) do
     desc 'The content of the DNS record.'
 
     validate do |value|
-      fail 'An empty record is not allowed' if value.empty?
-      fail 'The content of a CNAME record cannot have multiple entries' if value.length > 1 && @resource[:type] == 'CNAME'
+      raise ArgumentError, 'An empty record is not allowed' if value.empty?
+      raise ArgumentError, 'The content of a CNAME record cannot have multiple entries' if value.length > 1 && @resource[:type] == 'CNAME'
     end
 
     def insync?(is)
@@ -42,7 +42,7 @@ Puppet::Type.newtype(:dns_record) do
     munge(&:to_i)
 
     validate do |value|
-      fail 'TTL must be an integer' unless value.to_i.to_s == value.to_s
+      raise ArgumentError, 'TTL must be an integer' unless value.to_i.to_s == value.to_s
     end
 
     defaultto '3600'
@@ -60,6 +60,6 @@ Puppet::Type.newtype(:dns_record) do
   end
 
   validate do
-    fail('The content of the record must not be blank') if self[:content] && self[:content].empty?
+    raise ArgumentError, 'The content of the record must not be blank' if self[:content] && self[:content].empty?
   end
 end
