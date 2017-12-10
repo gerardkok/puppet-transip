@@ -2,9 +2,9 @@ class transip (
   String $username,
   String $ip,
   String $key_file,
-  String $owner                                       = $::transip::params::owner,
-  String $group                                       = $::transip::params::group,
-  Hash[String, Variant[String, Numeric]] $dns_records = {}
+  String $owner     = $::transip::params::owner,
+  String $group     = $::transip::params::group,
+  Hash $dns_records = {}
 ) inherits ::transip::params {
   file { $::transip::params::config_file:
     ensure  => 'present',
