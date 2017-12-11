@@ -71,7 +71,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
     end
   end
 
-  context 'record for unmanaged domain' do
+  context 'unmanaged domain' do
     let(:resource) do
       Puppet::Type.type(:dns_record).new(
         ensure: :present,
@@ -85,8 +85,63 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
     before :each do
       described_class.expects(:domain_names).returns ['example.com']
     end
+    it 'should construct domains_re' do
+      expect(provider.domains_re).to eq(/^.*(example\.com)$/)
+    end
+    it 'should not match domain' do
+      expect { provider.domain }.to raise_error(Puppet::Error)
+    end
+    it 'should not construct hostname' do
+      expect { provider.record }.to raise_error(Puppet::Error)
+    end
     it 'should error out when creating host.example.eu/A' do
       expect { provider.flush }.to raise_error(Puppet::Error)
+    end
+  end
+
+  context 'two domains' do
+    let(:resource) do
+      Puppet::Type.type(:dns_record).new(
+        ensure: :present,
+        name: 'www.example.eu/A',
+        ttl: 3600,
+        content: ['192.0.2.1'],
+        provider: described_class.name
+      )
+    end
+    let(:provider) { resource.provider }
+    before :each do
+      described_class.expects(:domain_names).returns ['example.com', 'example.eu']
+    end
+    it 'should construct domains_re' do
+      expect(provider.domains_re).to eq(/^.*(example\.com|example\.eu)$/)
+    end
+    it 'should match domain' do
+      expect(provider.domain).to eq('example.eu')
+    end
+    it 'should construct hostname' do
+      expect(provider.record).to eq('www')
+    end
+  end
+
+  context 'check flush' do
+    let(:resource) do
+      Puppet::Type.type(:dns_record).new(
+        ensure: :present,
+        name: 'www.example.eu/A',
+        ttl: 3600,
+        content: ['192.0.2.1'],
+        provider: described_class.name
+      )
+    end
+    let(:provider) { resource.provider }
+    before do
+      described_class.expects(:domain_names).twice.returns ['example.eu']
+      described_class.expects(:get_entries).with('example.eu').once.returns []
+      described_class.expects(:set_entries).once
+    end
+    it 'should not raise error' do
+      expect { provider.flush }.to_not raise_error
     end
   end
 end

@@ -48,7 +48,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   def domain
     m = domains_re.match(@resource[:fqdn])
-    raise Puppet::Error, "cannot find domain matching #{resource[:fqdn]}" if m.nil?
+    raise Puppet::Error, "cannot find domain matching #{@resource[:fqdn]}" if m.nil?
     @domain ||= m[1]
   end
 
@@ -72,25 +72,31 @@ Puppet::Type.type(:dns_record).provide(:api) do
     raise Puppet::Error, "Unable to get entries for #{domain}"
   end
 
+  def get_entries(domain)
+    self.class.get_entries(domain)
+  end
+
   def self.set_entries(domain, entries)
     Transip::Client.set_entries(domain, entries)
   rescue Transip::ApiError
     raise Puppet::Error, "Unable to set entries for #{domain}"
   end
 
+  def set_entries(domain, entries)
+    self.class.set_entries(domain, entries)
+  end
+
   def self.entries
-    r = []
-    domain_names.each do |d|
+    domain_names.each_with_object([]) do |d, memo|
       get_entries(d).each do |e|
         fqdn = e['name'] == '@' ? d : "#{e['name']}.#{d}"
         name = "#{fqdn}/#{e['type']}"
-        if i = r.find { |f| f[:name] == name }
+        if i = memo.find { |f| f[:name] == name }
           i[:content] << e['content']
         else
-          r << { name: name, fqdn: fqdn, content: [e['content']], type: e['type'], ttl: e['expire'] }
+          memo << { name: name, fqdn: fqdn, content: [e['content']], type: e['type'], ttl: e['expire'] }
         end
       end
     end
-    r
   end
 end
