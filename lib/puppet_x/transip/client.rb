@@ -38,7 +38,7 @@ module Transip
 
     def self.entries_by_name(domain)
       a = domain['dnsEntries'].map { |e| to_hash(e, domain['name']) }.group_by { |h| h[:fqdn] }
-      a.each { |k, v| "#{k} => #{v}\n"}
+      a.each { |k, v| puts "#{k} => #{v}\n" }
       a
     end
 
@@ -48,7 +48,7 @@ module Transip
           e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
         end
       end
-      a.each { |h| "entry: #{h}\n"}
+      a.each { |h| puts "entry: #{h}\n" }
       a
     end
 
