@@ -34,7 +34,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
     entries = get_entries(domain).reject { |e| Transip::Client.fqdn(e['name'], domain) == @resource[:fqdn] && e['type'] == @resource[:type] }
     puts "entries at start:\n"
     entries.each { |e| puts "#{e}\n"}
-    unless @property_hash[:ensure] == :absent
+    if @property_hash[:ensure] == :present
       @resource[:content].to_set.each do |c|
         entries << Transip::DnsEntry.new(Transip::Client.record(@resource[:fqdn], domain), @resource[:ttl], @resource[:type], c)
       end
