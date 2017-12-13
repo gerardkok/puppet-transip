@@ -114,7 +114,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   def self.entries
     Transip::Client.entries.inject([]) do |memo, domain|
-      memo + entries_for(domain[:domain])
+      memo + entries_for(domain[:domain].to_hash)
     end
   end
 end
