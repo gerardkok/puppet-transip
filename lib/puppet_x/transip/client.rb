@@ -27,5 +27,19 @@ module Transip
     def self.set_entries(domain, entries)
       domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
     end
+
+    def self.record(fqdn, domain)
+      fqdn == domain ? '@' : fqdn.chomp(domain).chomp('.')
+    end
+
+    def self.fqdn(record, domain)
+      record == '@' ? domain : "#{record}.#{domain}"
+    end
+
+    def self.to_hash(entry, domain)
+      fqdn = fqdn(entry['name'], domain)
+      name = "#{fqdn}/#{entry['type']}"
+      { name: name, fqdn: fqdn, content: entry['content'], type: entry['type'], ttl: entry['expire'] }
+    end
   end
 end

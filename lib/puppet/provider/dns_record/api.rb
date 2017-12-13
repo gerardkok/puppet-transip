@@ -31,12 +31,12 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def flush
-    entries = get_entries(domain).reject { |e| e['name'] == record && e['type'] == @resource[:type] }
+    entries = get_entries(domain).reject { |e| Transip::Client.fqdn(e['name'], domain) == @recource[:fqdn] && e['type'] == @resource[:type] }
     puts "entries at start:\n"
     entries.each { |e| puts "#{e}\n" }
     if @property_hash[:ensure] == :present
       @resource[:content].to_set.each do |c|
-        entries << Transip::DnsEntry.new(record, @resource[:ttl], @resource[:type], c)
+        entries << Transip::DnsEntry.new(Transip::Client.record(@resource[:fqdn], domain), @resource[:ttl], @resource[:type], c)
       end
     end
     puts "entries at end:\n"
@@ -54,10 +54,6 @@ Puppet::Type.type(:dns_record).provide(:api) do
     m = domains_re.match(@resource[:fqdn])
     raise Puppet::Error, "cannot find domain matching #{@resource[:fqdn]}" if m.nil?
     @domain ||= m[1]
-  end
-
-  def record
-    @record ||= @resource[:fqdn].chomp(domain).chomp('.')
   end
 
   def self.domain_names
@@ -90,14 +86,8 @@ Puppet::Type.type(:dns_record).provide(:api) do
     self.class.set_entries(domain, entries)
   end
 
-  def self.to_hash(entry, domain)
-    fqdn = entry['name'] == '@' ? domain : "#{entry['name']}.#{domain}"
-    name = "#{fqdn}/#{entry['type']}"
-    { name: name, fqdn: fqdn, content: entry['content'], type: entry['type'], ttl: entry['expire'] }
-  end
-
   def self.entries_by_name(domain)
-    get_entries(domain).map { |e| to_hash(e, domain) }.group_by { |h| h[:name] }
+    get_entries(domain).map { |e| Transip::Client.to_hash(e, domain) }.group_by { |h| h[:name] }
   end
 
   def self.entries_in(domain)

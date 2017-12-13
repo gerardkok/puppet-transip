@@ -91,9 +91,6 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
     it 'should not match domain' do
       expect { provider.domain }.to raise_error(Puppet::Error)
     end
-    it 'should not construct hostname' do
-      expect { provider.record }.to raise_error(Puppet::Error)
-    end
     it 'should error out when creating host.example.eu/A' do
       expect { provider.flush }.to raise_error(Puppet::Error)
     end
@@ -118,9 +115,6 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
     end
     it 'should match domain' do
       expect(provider.domain).to eq('example.eu')
-    end
-    it 'should construct hostname' do
-      expect(provider.record).to eq('www')
     end
   end
 
