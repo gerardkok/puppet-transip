@@ -101,7 +101,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
   # end
 
   def self.entries_by_name_for(domain)
-    r = domain['dnsEntries'].map { |e| Transip::Client.to_hash(e, domain[:name]) }.group_by { |h| h[:name] }
+    r = domain['dnsEntries'].map { |e| Transip::Client.to_hash(e, domain['name']) }.group_by { |h| h[:name] }
     r.each { |k, v| puts "#{k} => #{v}\n"}
     r
   end
@@ -117,7 +117,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
   def self.all_entries
     Transip::Client.all_entries
   rescue Transip::ApiError
-    raise Puppet::Error, "Unable to get entries for all domains"
+    raise Puppet::Error, 'Unable to get entries for all domains'
   end
 
   def self.entries
