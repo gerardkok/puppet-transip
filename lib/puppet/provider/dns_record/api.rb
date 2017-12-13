@@ -105,6 +105,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.entries_for(domain)
+    puts "domain: #{domain}\n"
     entries_by_name_for(domain).map do |_, v|
       v.each_with_object({}) do |e, memo|
         e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
