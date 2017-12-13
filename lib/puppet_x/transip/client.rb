@@ -25,7 +25,7 @@ module Transip
     end
 
     def self.entries
-      domainclient.request(:batch_get_info, domain_names: domain_names).amp(&:to_hash)
+      domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
     end
 
     def self.set_entries(domain, entries)
