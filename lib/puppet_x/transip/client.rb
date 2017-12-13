@@ -27,8 +27,10 @@ module Transip
     def self.entries
       puts "domain_names: [#{domain_names.join(', ')}]\n"
       r = domainclient.request(:batch_get_info, domain_names: domain_names)
-      puts "result: #{r.inspect}\n"
-      r.map(&:to_hash)
+      puts "result: #{r}\n"
+      h = r.map { |e| e.to_hash unless e.nil? }
+      puts "mapped: #{h}\n"
+      h
     end
 
     def self.set_entries(domain, entries)
