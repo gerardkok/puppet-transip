@@ -57,7 +57,6 @@ module Transip
 
     def self.set_entries(domain, entries)
       dnsentries = entries.map { |e| to_entry(e, domain) }
-      puts "dnsentries: #{dnsentries}\n"
       domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
     end
   end
