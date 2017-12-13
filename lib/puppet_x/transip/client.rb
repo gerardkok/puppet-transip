@@ -27,7 +27,7 @@ module Transip
 
     def self.to_entry(hsh, domain)
       name = hsh[:fqdn] == domain ? '@' : hsh[:fqdn].chomp(domain).chomp('.')
-      Transip::DnsEntry.new(name: name, content: hsh[:content], type: hsh[:type], expire: hsh[:expire])
+      Transip::DnsEntry.new(name, hsh[:expire], hsh[:type], c)
     end
 
     def self.entries(domain)
