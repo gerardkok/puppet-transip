@@ -37,7 +37,7 @@ module Transip
     end
 
     def self.entries_by_name(domain)
-      a = domain['dnsEntries'].map { |e| to_hash(e, domain['name']) }.group_by { |h| h[:fqdn] }
+      a = domain['dnsEntries'].map { |e| to_hash(e, domain['name']) }.group_by { |h| "#{h[:fqdn]}/#{h[:type]}" }
       a.each { |k, v| puts "#{k} => #{v}\n" }
       a
     end
