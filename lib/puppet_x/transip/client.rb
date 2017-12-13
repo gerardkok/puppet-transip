@@ -20,30 +20,44 @@ module Transip
       domainclient.request(:get_domain_names)
     end
 
-    def self.get_entries(domain)
-      domainclient.request(:get_info, domain_name: domain).to_hash[:domain]['dnsEntries']
+    def self.to_hash(entry, domain)
+      fqdn = entry['name'] == '@' ? domain : "#{entry['name']}.#{domain}"
+      { fqdn: fqdn, content: entry['content'], type: entry['type'], expire: entry['expire'] }
+    end
+
+    def self.to_entry(hsh, domain)
+      name = hsh[:fqdn] == domain ? '@' : hsh[:fqdn].chomp(domain).chomp('.')
+      Transip::DnsEntry.new(name: name, content: hsh[:content], type: hsh[:type], expire: hsh[:expire])
+    end
+
+    def self.entries(domain)
+      domainclient.request(:get_info, domain_name: domain).to_hash[:domain]['dnsEntries'].map do |e|
+        to_hash(e, domain)
+      end
+    end
+
+    def self.entries_by_name(domain)
+      domain['dnsEntries'].map { |e| to_hash(e, domain['name']) }.group_by { |h| h[:fqdn] }
+    end
+
+    def self.entries_in(domain)
+      entries_by_name(domain).map do |_, v|
+        v.each_with_object({}) do |e, memo|
+          e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
+        end
+      end
     end
 
     def self.all_entries
-      domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
+      a = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
+      a.inject([]) do |memo, domain|
+        memo + entries_in(domain[:domain])
+      end
     end
 
     def self.set_entries(domain, entries)
-      domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
-    end
-
-    def self.record(fqdn, domain)
-      fqdn == domain ? '@' : fqdn.chomp(domain).chomp('.')
-    end
-
-    def self.fqdn(record, domain)
-      record == '@' ? domain : "#{record}.#{domain}"
-    end
-
-    def self.to_hash(entry, domain)
-      fqdn = fqdn(entry['name'], domain)
-      name = "#{fqdn}/#{entry['type']}"
-      { name: name, fqdn: fqdn, content: entry['content'], type: entry['type'], ttl: entry['expire'] }
+      dnsentries = entries.map { |e| to_entry(e, domain) }
+      domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
     end
   end
 end
