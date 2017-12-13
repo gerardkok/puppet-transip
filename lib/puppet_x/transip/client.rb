@@ -26,9 +26,7 @@ module Transip
     end
 
     def self.to_entry(hsh, domain)
-      puts "to_entry(#{hsh}) for #{domain}\n"
       name = hsh[:fqdn] == domain ? '@' : hsh[:fqdn].chomp(domain).chomp('.')
-      puts "name: #{name}\n\n"
       Transip::DnsEntry.new(name: name, content: hsh[:content], type: hsh[:type], expire: hsh[:expire])
     end
 
@@ -59,6 +57,7 @@ module Transip
 
     def self.set_entries(domain, entries)
       dnsentries = entries.map { |e| to_entry(e, domain) }
+      puts "dnsentries: #{dnsentries}\n"
       domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
     end
   end
