@@ -53,6 +53,8 @@ module Transip
       a.inject([]) do |memo, domain|
         memo + entries_in(domain[:domain])
       end
+      a.each { |b| puts "#{b}\n"}
+      a
     end
 
     def self.set_entries(domain, entries)
