@@ -101,8 +101,8 @@ Puppet::Type.type(:dns_record).provide(:api) do
   # end
 
   def self.entries_by_name_for(domain)
-    domain[:dnsentries].each { |d| puts "entry: #{d}\n" }
-    domain[:dnsentries].map { |e| Transip::Client.to_hash(e.to_hash, domain[:name]) }.group_by { |h| h[:name] }
+    domain['dnsEntries'].each { |d| puts "entry: #{d}\n" }
+    domain['dnsEntries'].map { |e| Transip::Client.to_hash(e.to_hash, domain[:name]) }.group_by { |h| h[:name] }
   end
 
   def self.entries_for(domain)
