@@ -37,6 +37,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
         entries << Transip::DnsEntry.new(record, @resource[:ttl], @resource[:type], c)
       end
     end
+    puts "entries to set #{entries.inspect}\n"
     set_entries(domain, entries)
     @property_hash = @resource.to_hash
   end
