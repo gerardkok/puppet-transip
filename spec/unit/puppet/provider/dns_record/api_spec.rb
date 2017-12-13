@@ -118,24 +118,24 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
     end
   end
 
-  context 'flush' do
-    let(:resource) do
-      Puppet::Type.type(:dns_record).new(
-        ensure: :present,
-        name: 'www.example.eu/A',
-        ttl: 3600,
-        content: ['192.0.2.1'],
-        provider: described_class.name
-      )
-    end
-    let(:provider) { resource.provider }
-    before do
-      described_class.expects(:domain_names).twice.returns ['example.eu']
-      described_class.expects(:get_entries).with('example.eu').once.returns []
-      described_class.expects(:set_entries).once
-    end
-    it 'should not raise error' do
-      expect { provider.flush }.to_not raise_error
-    end
-  end
+  # context 'flush' do
+  #   let(:resource) do
+  #     Puppet::Type.type(:dns_record).new(
+  #       ensure: :absent,
+  #       name: 'www.example.eu/A',
+  #       ttl: 3600,
+  #       content: ['192.0.2.1'],
+  #       provider: described_class.name
+  #     )
+  #   end
+  #   let(:provider) { resource.provider }
+  #   before do
+  #     described_class.expects(:domain_names).twice.returns ['example.eu']
+  #     described_class.expects(:get_entries).with('example.eu').once.returns []
+  #     described_class.expects(:set_entries).once
+  #   end
+  #   it 'should not raise error' do
+  #     expect { provider.flush }.to_not raise_error
+  #   end
+  # end
 end
