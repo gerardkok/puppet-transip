@@ -101,12 +101,12 @@ Puppet::Type.type(:dns_record).provide(:api) do
   # end
 
   def self.entries_by_name_for(domain)
-    domain['dnsEntries'].each { |d| puts "entry: #{d}\n" }
-    domain['dnsEntries'].map { |e| Transip::Client.to_hash(e.to_hash, domain[:name]) }.group_by { |h| h[:name] }
+    r = domain['dnsEntries'].map { |e| Transip::Client.to_hash(e.to_hash, domain[:name]) }.group_by { |h| h[:name] }
+    r.each { |k, v| puts "#{k} => #{v}\n"}
+    r
   end
 
   def self.entries_for(domain)
-    puts "domain: #{domain}\n"
     entries_by_name_for(domain).map do |_, v|
       v.each_with_object({}) do |e, memo|
         e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
