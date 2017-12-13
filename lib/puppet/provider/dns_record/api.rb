@@ -82,24 +82,6 @@ Puppet::Type.type(:dns_record).provide(:api) do
     self.class.set_entries(domain, entries)
   end
 
-  # def self.entries_by_name(domain)
-  #   get_entries(domain).map { |e| Transip::Client.to_hash(e, domain) }.group_by { |h| h[:name] }
-  # end
-
-  # def self.entries_in(domain)
-  #   entries_by_name(domain).map do |_, v|
-  #     v.each_with_object({}) do |e, memo|
-  #       e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
-  #     end
-  #   end
-  # end
-
-  # # def self.entries
-  #   domain_names.inject([]) do |memo, d|
-  #     memo + entries_in(d)
-  #   end
-  # end
-
   def self.entries_by_name_for(domain)
     domain['dnsEntries'].map { |e| Transip::Client.to_hash(e, domain['name']) }.group_by { |h| h[:name] }
   end

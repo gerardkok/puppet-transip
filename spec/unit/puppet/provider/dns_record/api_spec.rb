@@ -49,12 +49,12 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'entries with one entry' do
     before :each do
-      described_class.expects(:domain_names).returns ['example.com']
-      described_class.expects(:get_entries).with('example.com').returns [
-        { 'name'    => 'host',
-          'type'    => 'A',
-          'content' => '192.0.2.1',
-          'expire'  => '3600' }
+      described_class.expects(:entries).returns [
+        { name: 'host.example.com/A',
+          fqdn: 'host.example.com',
+          content: ['192.0.2.1'],
+          type: 'A',
+          ttl: '3600' }
       ]
     end
     it 'should return one resource' do
