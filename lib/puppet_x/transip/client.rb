@@ -37,24 +37,25 @@ module Transip
     end
 
     def self.entries_by_name(domain)
-      domain['dnsEntries'].map { |e| to_hash(e, domain['name']) }.group_by { |h| h[:fqdn] }
+      a = domain['dnsEntries'].map { |e| to_hash(e, domain['name']) }.group_by { |h| h[:fqdn] }
+      a.each { |k, v| "#{k} => #{v}\n"}
+      a
     end
 
     def self.entries_in(domain)
-      entries_by_name(domain).map do |_, v|
+      a = entries_by_name(domain).map do |_, v|
         v.each_with_object({}) do |e, memo|
           e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
         end
       end
+      a.each { |h| "entry: #{h}\n"}
+      a
     end
 
     def self.all_entries
-      a = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
-      a.inject([]) do |memo, domain|
+      domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash).inject([]) do |memo, domain|
         memo + entries_in(domain[:domain])
       end
-      a.each { |b| puts "#{b}\n"}
-      a
     end
 
     def self.set_entries(domain, entries)
