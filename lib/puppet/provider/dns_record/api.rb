@@ -32,7 +32,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   def flush
     entries = get_entries(domain)
-    entries.each { |e| puts "#{Transip::Client.fqdn(e['name'], domain)}\n" }
+    entries.each { |e| puts "#{Transip::Client.fqdn(e['name'], domain)}/#{e['type']} vs #{@resource['fqdn']}/#{@resource['type']}\n" }
     entries.reject! { |e| Transip::Client.fqdn(e['name'], domain) == @recource[:fqdn] && e['type'] == @resource[:type] }
     puts "entries at start:\n"
     entries.each { |e| puts "#{e}\n" }
