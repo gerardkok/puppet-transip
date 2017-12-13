@@ -31,7 +31,9 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def flush
-    entries = get_entries(domain).reject { |e| Transip::Client.fqdn(e['name'], domain) == @recource[:fqdn] && e['type'] == @resource[:type] }
+    entries = get_entries(domain)
+    entries.each { |e| puts "#{Transip::Client.fqdn(e['name'], domain)}\n" }
+    entries.reject! { |e| Transip::Client.fqdn(e['name'], domain) == @recource[:fqdn] && e['type'] == @resource[:type] }
     puts "entries at start:\n"
     entries.each { |e| puts "#{e}\n" }
     if @property_hash[:ensure] == :present
