@@ -28,3 +28,6 @@ Gemfile.lock
 .rspec
 spec/fixtures/manifests/
 spec/fixtures/modules/
+
+## Gem
+Gemfile.lock
