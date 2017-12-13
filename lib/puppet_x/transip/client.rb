@@ -24,7 +24,7 @@ module Transip
       domainclient.request(:get_info, domain_name: domain).to_hash[:domain]['dnsEntries']
     end
 
-    def self.entries
+    def self.all_entries
       domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
     end
 

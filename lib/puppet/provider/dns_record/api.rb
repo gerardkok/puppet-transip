@@ -114,8 +114,14 @@ Puppet::Type.type(:dns_record).provide(:api) do
     end
   end
 
+  def self.all_entries
+    Transip::Client.all_entries
+  rescue Transip::ApiError
+    raise Puppet::Error, "Unable to get entries for all domains"
+  end
+
   def self.entries
-    Transip::Client.entries.inject([]) do |memo, domain|
+    all_entries.inject([]) do |memo, domain|
       memo + entries_for(domain[:domain])
     end
   end
