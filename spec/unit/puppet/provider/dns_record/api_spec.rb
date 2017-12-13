@@ -124,7 +124,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
     end
   end
 
-  context 'check flush' do
+  context 'flush' do
     let(:resource) do
       Puppet::Type.type(:dns_record).new(
         ensure: :present,

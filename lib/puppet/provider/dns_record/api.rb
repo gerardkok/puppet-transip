@@ -86,17 +86,27 @@ Puppet::Type.type(:dns_record).provide(:api) do
     self.class.set_entries(domain, entries)
   end
 
-  def self.entries
-    domain_names.each_with_object([]) do |d, memo|
-      get_entries(d).each do |e|
-        fqdn = e['name'] == '@' ? d : "#{e['name']}.#{d}"
-        name = "#{fqdn}/#{e['type']}"
-        if i = memo.find { |f| f[:name] == name }
-          i[:content] << e['content']
-        else
-          memo << { name: name, fqdn: fqdn, content: [e['content']], type: e['type'], ttl: e['expire'] }
-        end
+  def self.to_hash(entry, domain)
+    fqdn = entry['name'] == '@' ? domain : "#{entry['name']}.#{domain}"
+    name = "#{fqdn}/#{entry['type']}"
+    { name: name, fqdn: fqdn, content: entry['content'], type: entry['type'], ttl: entry['expire'] }
+  end
+
+  def self.entries_by_name(domain)
+    get_entries(domain).map { |e| to_hash(e, domain) }.group_by { |h| h[:name] }
+  end
+
+  def self.entries_in(domain)
+    entries_by_name(domain).map do |_, v|
+      v.each_with_object({}) do |e, memo|
+        e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
       end
+    end
+  end
+
+  def self.entries
+    domain_names.inject([]) do |memo, d|
+      memo + entries_in(d)
     end
   end
 end
