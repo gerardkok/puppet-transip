@@ -22,41 +22,6 @@ module Transip
       raise Puppet::Error, 'Unable to get domain names'
     end
 
-    # def self.to_hash(entry, domain)
-    #   fqdn = entry['name'] == '@' ? domain : "#{entry['name']}.#{domain}"
-    #   { fqdn: fqdn, content: entry['content'], type: entry['type'], expire: entry['expire'] }
-    # end
-
-    # def self.to_entry(hsh, domain)
-    #   name = hsh[:fqdn] == domain ? '@' : hsh[:fqdn].chomp(domain).chomp('.')
-    #   Transip::DnsEntry.new(name, hsh[:expire], hsh[:type], hsh[:content])
-    # end
-
-    # def self.entries(domainname)
-    #   domainclient.request(:get_info, domain_name: domainname).to_hash[:domain]['dnsEntries'].map do |e|
-    #     to_hash(e, domainname)
-    #   end
-    # end
-
-    # def self.entries_by_name(domain)
-    #   domain['dnsEntries'].map { |e| to_hash(e, domain['name']) }.group_by { |h| "#{h[:fqdn]}/#{h[:type]}" }
-    # end
-
-    # def self.entries_in(domain)
-    #   entries_by_name(domain).map do |_, v|
-    #     v.each_with_object({}) do |e, memo|
-    #       e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
-    #     end
-    #   end
-    # end
-
-    # def self.all_entries
-    #   dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names)
-    #   dnsentries.map(&:to_hash).inject([]) do |memo, domain|
-    #     memo + entries_in(domain[:domain])
-    #   end
-    # end
-
     def self.to_hash(entry, domain)
       fqdn = entry['name'] == '@' ? domain : "#{entry['name']}.#{domain}"
       { fqdn: fqdn, content: entry['content'], type: entry['type'], expire: entry['expire'] }
