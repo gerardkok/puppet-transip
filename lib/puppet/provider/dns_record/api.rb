@@ -49,28 +49,16 @@ Puppet::Type.type(:dns_record).provide(:api) do
     @domain ||= m[1]
   end
 
-  def self.domain_names
+  def domain_names
     Transip::Client.domain_names
   end
 
-  def domain_names
-    self.class.domain_names
-  end
-
-  def self.entries(domain)
+  def entries(domain)
     Transip::Client.entries(domain)
   end
 
-  def entries(domain)
-    self.class.entries(domain)
-  end
-
-  def self.set_entries(domain, entries)
-    Transip::Client.set_entries(domain, entries)
-  end
-
   def set_entries(domain, entries)
-    self.class.set_entries(domain, entries)
+    Transip::Client.set_entries(domain, entries)
   end
 
   def self.all_entries
