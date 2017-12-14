@@ -78,9 +78,7 @@ module Transip
     end
 
     def self.all_entries
-      puts "in all_entries"
       entries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
-      puts "entries: #{entries}\n"
       entries.inject([]) do |memo, domain|
         memo + to_array(domain[:domain])
       end
