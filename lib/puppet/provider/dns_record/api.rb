@@ -5,9 +5,8 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   mk_resource_methods
   def self.instances
-    all_entries.collect do |e|
-      name = "#{e[:fqdn]}/#{e[:type]}"
-      new(ensure: :present, name: name, fqdn: e[:fqdn], content: e[:content], type: e[:type], ttl: e[:expire])
+    all_entries_by_name.collect do |e|
+      new(ensure: :present, name: e[:name], fqdn: e[:fqdn], content: e[:content], type: e[:type], ttl: e[:expire])
     end
   end
 
@@ -52,8 +51,6 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   def self.domain_names
     Transip::Client.domain_names
-  rescue Transip::ApiError
-    raise Puppet::Error, 'Unable to get domain names'
   end
 
   def domain_names
@@ -62,8 +59,6 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   def self.entries(domain)
     Transip::Client.entries(domain)
-  rescue Transip::ApiError
-    raise Puppet::Error, "Unable to get entries for #{domain}"
   end
 
   def entries(domain)
@@ -72,17 +67,21 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   def self.set_entries(domain, entries)
     Transip::Client.set_entries(domain, entries)
-  rescue Transip::ApiError
-    raise Puppet::Error, "Unable to set entries for #{domain}"
   end
 
   def set_entries(domain, entries)
     self.class.set_entries(domain, entries)
   end
 
+  def self.name(entry)
+    "#{entry[:fqdn]}/#{entry[:type]}"
+  end
+
   def self.all_entries
-    Transip::Client.all_entries
-  rescue Transip::ApiError
-    raise Puppet::Error, 'Unable to get entries for all domains'
+    Transip::Client.all_entries.each { |e| e[:name] = name(e) }.group_by { |h| h[:name] }.map do |_, v|
+      v.each_with_object({}) do |e, memo|
+        e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
+      end
+    end
   end
 end
