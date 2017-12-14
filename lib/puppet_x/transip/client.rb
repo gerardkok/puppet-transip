@@ -78,8 +78,10 @@ module Transip
     end
 
     def self.all_entries
-      domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash).inject([]) do |m, d|
-        m + to_array(d[:domain])
+      entries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
+      puts "entries: #{entries}\n"
+      entries.inject([]) do |memo, domain|
+        memo + to_array(domain[:domain])
       end
     rescue Transip::ApiError
       raise Puppet::Error, 'Unable to get entries for all domains'
