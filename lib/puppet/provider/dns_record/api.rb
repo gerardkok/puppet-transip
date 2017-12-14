@@ -73,12 +73,9 @@ Puppet::Type.type(:dns_record).provide(:api) do
     self.class.set_entries(domain, entries)
   end
 
-  def self.name(entry)
-    "#{entry[:fqdn]}/#{entry[:type]}"
-  end
-
   def self.all_entries
-    Transip::Client.all_entries.each { |e| e[:name] = name(e) }.group_by { |h| h[:name] }.map do |_, v|
+    name_added = Transip::Client.all_entries.each { |e| e[:name] = "#{e[:fqdn]}/#{e[:type]}" }
+    name_added.group_by { |h| h[:name] }.map do |_, v|
       v.each_with_object({}) do |e, memo|
         e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
       end
