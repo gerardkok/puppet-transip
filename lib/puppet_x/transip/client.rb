@@ -39,7 +39,7 @@ module Transip
     end
 
     def self.to_dnsentry(entry)
-      Transip::Dnsentry.new(entry[:name], entry[:expire], entry[:type], entry[:content])
+      Transip::DnsEntry.new(entry[:name], entry[:expire], entry[:type], entry[:content])
     end
 
     def self.entries(domainname)
