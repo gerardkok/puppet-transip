@@ -80,13 +80,10 @@ Puppet::Type.type(:dns_record).provide(:api) do
   # end
 
   def self.to_instance(entry, domain)
-    puts "entry before: #{entry}\n"
-    r = entry.tap do |e|
+    entry.tap do |e|
       e[:fqdn] = entry[:name] == '@' ? domain : "#{entry[:name]}.#{domain}"
       e[:name] = "#{e[:fqdn]}/#{entry[:type]}"
     end
-    puts "entry after: #{r}\n"
-    r
   end
 
   def self.collapse_content(entries, domain)
@@ -98,9 +95,10 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.collapsed_instances
-    all_entries.each_with_object([]) do |(domain, entries), memo|
-      puts "domain: #{domain}\n"
+    r = all_entries.each_with_object([]) do |(domain, entries), memo|
       memo + collapse_content(entries, domain)
     end
+    puts "collapsed instances: #{r}\n"
+    r
   end
 end
