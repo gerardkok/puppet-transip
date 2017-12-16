@@ -5,7 +5,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   mk_resource_methods
   def self.instances
-    all_entries.collect do |e|
+    collapsed_entries.map do |e|
       new(ensure: :present, name: e[:name], fqdn: e[:fqdn], content: e[:content], type: e[:type], ttl: e[:expire])
     end
   end
@@ -43,10 +43,12 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def domain
-    domainsre = /^.*(#{domain_names.join('|').gsub('.', '\.')})$/
-    m = domainsre.match(@resource[:fqdn])
-    raise Puppet::Error, "cannot find domain matching #{@resource[:fqdn]}" if m.nil?
-    @domain ||= m[1]
+    @domain ||= begin
+      domains_re = /^.*(#{domain_names.join('|').gsub('.', '\.')})$/
+      m = domains_re.match(@resource[:fqdn])
+      raise Puppet::Error, "cannot find domain matching #{@resource[:name]}" if m.nil?
+      m[1]
+    end
   end
 
   def domain_names
@@ -62,11 +64,39 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.all_entries
-    name_added = Transip::Client.all_entries.each { |e| e[:name] = "#{e[:fqdn]}/#{e[:type]}" }
-    name_added.group_by { |h| h[:name] }.map do |_, v|
+    Transip::Client.all_entries
+  end
+
+  # def self.entryname(entry)
+  #   "#{entry[:fqdn]}/#{entry[:type]}"
+  # end
+
+  # def self.collapsed_entries
+  #   all_entries.each { |e| e[:name] = entryname(e) }.group_by { |h| h[:name] }.map do |_, v|
+  #     v.each_with_object({}) do |e, memo|
+  #       e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
+  #     end
+  #   end
+  # end
+
+  def self.to_instance(entry, domain)
+    entry.tap do |e|
+      e[:fqdn] = entry[:name] == '@' ? domain : "#{entry[:name]}.#{domain}"
+      e[:name] = "#{e[:fqdn]}/#{entry[:type]}"
+    end
+  end
+
+  def self.collapse_content(entries, domain)
+    entries.each { |e| to_instance(e, domain) }.group_by { |h| h[:name] }.map do |_, v|
       v.each_with_object({}) do |e, memo|
         e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
       end
+    end
+  end
+
+  def self.collapsed_instances
+    all_entries.each_with_object([]) do |(domain, entries), memo|
+      memo + collapse_content(entries, domain)
     end
   end
 end
