@@ -99,6 +99,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   def self.collapsed_instances
     all_entries.each_with_object([]) do |(domain, entries), memo|
+      puts "domain: #{domain}\n"
       memo + collapse_content(entries, domain)
     end
   end
