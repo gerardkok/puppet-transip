@@ -56,7 +56,7 @@ module Transip
       dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
       dnsentries.each_with_object({}) do |domain, memo|
         d = domain[:domain]
-        memo[d] = to_array(d)
+        memo[d['name']] = to_array(d)
       end
     rescue Transip::ApiError
       raise Puppet::Error, 'Unable to get entries for all domains'
