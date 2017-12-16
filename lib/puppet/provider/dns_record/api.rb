@@ -64,7 +64,9 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.all_entries
-    Transip::Client.all_entries
+    r = Transip::Client.all_entries
+    puts "all entries: #{r}\n"
+    r
   end
 
   # def self.entryname(entry)
