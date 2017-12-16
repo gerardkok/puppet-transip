@@ -30,12 +30,16 @@ Puppet::Type.type(:dns_record).provide(:api) do
     @property_hash[:ensure] = :absent
   end
 
+  def entryname(fqdn, domain)
+    fqdn == domain ? '@' : fqdn.chomp(domain).chomp('.')
+  end
+
   def flush
-    entries = entries(domain).reject { |e| e[:fqdn] == @resource[:fqdn] && e[:type] == @resource[:type] }
+    entryname = entryname(@resource[:fqdn], domain)
+    entries = entries(domain).reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
     if @property_hash[:ensure] == :present
-      @resource[:content].to_set.each do |c|
-        entry = { fqdn: @resource[:fqdn], content: c, type: @resource[:type], expire: @resource[:ttl] }
-        entries << entry
+      @resource[:content].to_set.map do |c|
+        entries << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
       end
     end
     set_entries(domain, entries)
@@ -86,7 +90,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
     end
   end
 
-  def self.collapse_content(entries, domain)
+  def self.collapsed_content(entries, domain)
     entries.each { |e| to_instance(e, domain) }.group_by { |h| h[:name] }.map do |_, v|
       v.each_with_object({}) do |e, memo|
         e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
@@ -95,10 +99,8 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.collapsed_instances
-    r = all_entries.inject([]) do |memo, (domain, entries)|
-      memo + collapse_content(entries, domain)
+    all_entries.inject([]) do |memo, (domain, entries)|
+      memo + collapsed_content(entries, domain)
     end
-    puts "collapsed instances: #{r}\n"
-    r
   end
 end
