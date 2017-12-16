@@ -64,9 +64,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
   end
 
   def self.all_entries
-    r = Transip::Client.all_entries
-    puts "all entries: #{r}\n"
-    r
+    Transip::Client.all_entries
   end
 
   # def self.entryname(entry)
@@ -82,10 +80,13 @@ Puppet::Type.type(:dns_record).provide(:api) do
   # end
 
   def self.to_instance(entry, domain)
-    entry.tap do |e|
+    puts "entry before: #{entry}\n"
+    r = entry.tap do |e|
       e[:fqdn] = entry[:name] == '@' ? domain : "#{entry[:name]}.#{domain}"
       e[:name] = "#{e[:fqdn]}/#{entry[:type]}"
     end
+    puts "entry after: #{r}\n"
+    r
   end
 
   def self.collapse_content(entries, domain)
