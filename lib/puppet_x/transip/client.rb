@@ -44,7 +44,7 @@ module Transip
 
     def self.all_entries
       dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
-      dnsentries.each_with_object([]) do |domain, memo|
+      dnsentries.each_with_object({}) do |domain, memo|
         d = domain[:domain]
         memo[d['name']] = to_array(d)
       end
