@@ -5,8 +5,8 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   mk_resource_methods
   def self.instances
-    entries.collect do |e|
-      new(ensure: :present, name: e[:name], fqdn: e[:fqdn], content: e[:content], type: e[:type], ttl: e[:ttl])
+    collapsed_instances.map do |e|
+      new(ensure: :present, name: e[:name], fqdn: e[:fqdn], content: e[:content], type: e[:type], ttl: e[:expire])
     end
   end
 
@@ -30,79 +30,69 @@ Puppet::Type.type(:dns_record).provide(:api) do
     @property_hash[:ensure] = :absent
   end
 
+  def entryname(fqdn, domain)
+    fqdn == domain ? '@' : fqdn.chomp(domain).chomp('.')
+  end
+
   def flush
-    entries = get_entries(domain).reject { |e| Transip::Client.fqdn(e['name'], domain) == @resource[:fqdn] && e['type'] == @resource[:type] }
-    if @property_hash[:ensure] == :present
-      @resource[:content].to_set.each do |c|
-        entries << Transip::DnsEntry.new(Transip::Client.record(@resource[:fqdn], domain), @resource[:ttl], @resource[:type], c)
+    entryname = entryname(@resource[:fqdn], domain)
+    entries = entries(domain).reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
+    unless @property_hash[:ensure] == :absent
+      @resource[:content].to_set.map do |c|
+        entries << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
       end
     end
     set_entries(domain, entries)
     @property_hash = @resource.to_hash
   end
 
-  def domains_re
-    domains = domain_names.join('|').gsub('.', '\.')
-    @domains_re ||= /^.*(#{domains})$/
-  end
-
   def domain
-    m = domains_re.match(@resource[:fqdn])
-    raise Puppet::Error, "cannot find domain matching #{@resource[:fqdn]}" if m.nil?
-    @domain ||= m[1]
-  end
-
-  def self.domain_names
-    Transip::Client.domain_names
-  rescue Transip::ApiError
-    raise Puppet::Error, 'Unable to get domain names'
+    @domain ||= begin
+      domains_re = /^.*(#{domain_names.join('|').gsub('.', '\.')})$/
+      m = domains_re.match(@resource[:fqdn])
+      raise Puppet::Error, "cannot find domain matching #{@resource[:name]}" if m.nil?
+      m[1]
+    end
   end
 
   def domain_names
-    self.class.domain_names
+    Transip::Client.domain_names
   end
 
-  def self.get_entries(domain)
-    Transip::Client.get_entries(domain)
-  rescue Transip::ApiError
-    raise Puppet::Error, "Unable to get entries for #{domain}"
-  end
-
-  def get_entries(domain)
-    self.class.get_entries(domain)
-  end
-
-  def self.set_entries(domain, entries)
-    Transip::Client.set_entries(domain, entries)
-  rescue Transip::ApiError
-    raise Puppet::Error, "Unable to set entries for #{domain}"
+  def entries(domain)
+    Transip::Client.entries(domain)
   end
 
   def set_entries(domain, entries)
-    self.class.set_entries(domain, entries)
+    Transip::Client.set_entries(domain, entries)
   end
 
-  def self.entries_by_name_for(domain)
-    domain['dnsEntries'].map { |e| Transip::Client.to_hash(e, domain['name']) }.group_by { |h| h[:name] }
+  def self.all_entries
+    Transip::Client.all_entries
   end
 
-  def self.entries_for(domain)
-    entries_by_name_for(domain).map do |_, v|
+  def self.fqdn(entryname, domain)
+    entryname == '@' ? domain : "#{entryname}.#{domain}"
+  end
+
+  def self.to_instance(entry, domain)
+    entry.tap do |e|
+      e[:fqdn] = fqdn(entry[:name], domain)
+      e[:name] = "#{e[:fqdn]}/#{entry[:type]}"
+    end
+  end
+
+  def self.collapsed_content(entries, domain)
+    entries.each { |e| to_instance(e, domain) }.group_by { |h| h[:name] }.map do |_, v|
       v.each_with_object({}) do |e, memo|
         e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
       end
     end
   end
 
-  def self.all_entries
-    Transip::Client.all_entries
-  rescue Transip::ApiError
-    raise Puppet::Error, 'Unable to get entries for all domains'
-  end
-
-  def self.entries
-    all_entries.inject([]) do |memo, domain|
-      memo + entries_for(domain[:domain])
+  def self.collapsed_instances
+    all_entries.inject([]) do |memo, (domain, entries)|
+      memo + collapsed_content(entries, domain)
     end
   end
 end

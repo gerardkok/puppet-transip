@@ -17,33 +17,46 @@ module Transip
     end
 
     def self.domain_names
-      domainclient.request(:get_domain_names)
+      @domain_names ||= domainclient.request(:get_domain_names)
+    rescue Transip::ApiError
+      raise Puppet::Error, 'Unable to get domain names'
     end
 
-    def self.get_entries(domain)
-      domainclient.request(:get_info, domain_name: domain).to_hash[:domain]['dnsEntries']
+    def self.to_entry(dnsentry)
+      %i[name content type expire].each_with_object({}) do |i, memo|
+        memo[i] = dnsentry[i.to_s]
+      end
+    end
+
+    def self.to_dnsentry(entry)
+      Transip::DnsEntry.new(entry[:name], entry[:expire], entry[:type], entry[:content])
+    end
+
+    def self.entries(domainname)
+      to_array(domainclient.request(:get_info, domain_name: domainname).to_hash[:domain])
+    rescue Transip::ApiError
+      raise Puppet::Error, "Unable to get entries for #{domainname}"
+    end
+
+    def self.to_array(domain)
+      domain['dnsEntries'].map { |e| to_entry(e) }
     end
 
     def self.all_entries
-      domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
+      dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
+      dnsentries.each_with_object({}) do |domain, memo|
+        d = domain[:domain]
+        memo[d['name']] = to_array(d)
+      end
+    rescue Transip::ApiError
+      raise Puppet::Error, 'Unable to get entries for all domains'
     end
 
     def self.set_entries(domain, entries)
-      domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
-    end
-
-    def self.record(fqdn, domain)
-      fqdn == domain ? '@' : fqdn.chomp(domain).chomp('.')
-    end
-
-    def self.fqdn(record, domain)
-      record == '@' ? domain : "#{record}.#{domain}"
-    end
-
-    def self.to_hash(entry, domain)
-      fqdn = fqdn(entry['name'], domain)
-      name = "#{fqdn}/#{entry['type']}"
-      { name: name, fqdn: fqdn, content: entry['content'], type: entry['type'], ttl: entry['expire'] }
+      dnsentries = entries.map { |e| to_dnsentry(e) }
+      domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
+    rescue Transip::ApiError
+      raise Puppet::Error, "Unable to set entries for #{domain}"
     end
   end
 end
