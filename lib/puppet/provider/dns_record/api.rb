@@ -37,7 +37,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
   def flush
     entryname = entryname(@resource[:fqdn], domain)
     entries = entries(domain).reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
-    if @property_hash[:ensure] == :present
+    unless @property_hash[:ensure] == :absent
       @resource[:content].to_set.map do |c|
         entries << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
       end
@@ -71,21 +71,13 @@ Puppet::Type.type(:dns_record).provide(:api) do
     Transip::Client.all_entries
   end
 
-  # def self.entryname(entry)
-  #   "#{entry[:fqdn]}/#{entry[:type]}"
-  # end
-
-  # def self.collapsed_entries
-  #   all_entries.each { |e| e[:name] = entryname(e) }.group_by { |h| h[:name] }.map do |_, v|
-  #     v.each_with_object({}) do |e, memo|
-  #       e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
-  #     end
-  #   end
-  # end
+  def self.fqdn(entryname, domain)
+    entryname == '@' ? domain : "#{entryname}.#{domain}"
+  end
 
   def self.to_instance(entry, domain)
     entry.tap do |e|
-      e[:fqdn] = entry[:name] == '@' ? domain : "#{entry[:name]}.#{domain}"
+      e[:fqdn] = fqdn(entry[:name], domain)
       e[:name] = "#{e[:fqdn]}/#{entry[:type]}"
     end
   end

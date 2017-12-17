@@ -22,16 +22,6 @@ module Transip
       raise Puppet::Error, 'Unable to get domain names'
     end
 
-    # def self.to_hash(entry, domain)
-    #   fqdn = entry['name'] == '@' ? domain : "#{entry['name']}.#{domain}"
-    #   { fqdn: fqdn, content: entry['content'], type: entry['type'], expire: entry['expire'] }
-    # end
-
-    # def self.to_entry(hsh, domain)
-    #   name = hsh[:fqdn] == domain ? '@' : hsh[:fqdn].chomp(domain).chomp('.')
-    #   Transip::DnsEntry.new(name, hsh[:expire], hsh[:type], hsh[:content])
-    # end
-
     def self.to_entry(dnsentry)
       %i[name content type expire].each_with_object({}) do |i, memo|
         memo[i] = dnsentry[i.to_s]
@@ -54,7 +44,7 @@ module Transip
 
     def self.all_entries
       dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
-      dnsentries.each_with_object({}) do |domain, memo|
+      dnsentries.each_with_object([]) do |domain, memo|
         d = domain[:domain]
         memo[d['name']] = to_array(d)
       end
