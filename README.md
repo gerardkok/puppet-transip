@@ -14,8 +14,6 @@
 5. [Reference](#reference)
 5. [Limitations](#limitations)
 6. [Development](#development)
-7. [Release notes](#release-notes)
-8. [Disclaimer](#disclaimer)
 
 ## Overview
 
@@ -148,12 +146,4 @@ The locations of the credentials file is currently fixed to `transip.yaml` in th
 
 ## Development
 
-Run `rake spec` to run all tests.
-
-## Release Notes
-
-First release, no fancy options yet.
-
-## Disclaimer
-
-Use at your own risk.
+Run `rake spec` to run all tests. The [transip](https://github.com/joost/transip) gem is not required to run the tests.

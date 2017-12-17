@@ -1,6 +1,6 @@
 {
     "name": "gerardkok-transip",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "author": "gerardkok",
     "summary": "This module allows managing of dns records on TransIP-hosted domains.",
     "license": "MIT",
@@ -13,5 +13,9 @@
             ]
         }
     ],
-    "dependencies": []
+    "dependencies": [],
+    "requirements": [{
+        "name": "puppet",
+        "version_requirement": ">= 4.0.0 < 6.0.0"
+    }]
 }
