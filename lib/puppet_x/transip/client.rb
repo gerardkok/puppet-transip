@@ -46,8 +46,8 @@ module Transip
 
     def self.all_entries
       puts "domain names in all_entries: #{domain_names}\n"
-      options = { domain_names: domain_names }
-      dnsentries = domainclient.request(:batch_get_info, options)
+      d = domain_names
+      dnsentries = domainclient.request(:batch_get_info, domain_names: d)
       puts "dnsentries: #{dnsentries.inspect}\n"
 #      dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
 #      dnsentries.each_with_object({}) do |domain, memo|
