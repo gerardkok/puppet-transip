@@ -25,7 +25,7 @@ module Transip
           'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/'
         )
       end
-      puts "client: #{@client.inspect}\n"
+#      puts "client: #{@client.inspect}\n"
     end
 
     def camelize(word)

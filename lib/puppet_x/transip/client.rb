@@ -18,7 +18,7 @@ module Transip
 
     def self.domain_names
       @domain_names ||= domainclient.request(:get_domain_names)
-      puts "domain names: #{domain_names}\n"
+      puts "domain names: #{@domain_names}\n"
     rescue Savon::SOAPFault
       raise Puppet::Error, 'Unable to get domain names'
     end
@@ -45,6 +45,7 @@ module Transip
     end
 
     def self.all_entries
+      puts "domain names in all_entries: #{domain_names}\n"
       dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names)
       puts "dnsentries: #{dnsentries.inspect}\n"
 #      dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
