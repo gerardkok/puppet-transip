@@ -127,12 +127,12 @@ module Transip
 
     def request(action, options = {})
       puts "request(#{action}, #{options.inspect})\n"
-      formatted_action = camelize(action)
-
+      camelized_action = camelize(action)
+      response_action = "#{action}_response".to_sym
       message = to_soap(options)
-      cookies = cookies(formatted_action, options)
+      cookies = cookies(camelized_action, options)
       response = @client.call(action, message: message, cookies: cookies)
-      result = from_soap(response.body.values.first[:return])
+      result = from_soap(response.body[response_action][:return])
       puts "result: #{result}\n"
       result
     end
