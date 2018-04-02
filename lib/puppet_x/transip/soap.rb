@@ -91,8 +91,7 @@ module Transip
       #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
       nonce = SecureRandom.uuid.gsub("-", '')
       signature = signature(action, options, time, nonce)
-      cookies = to_cookie_array(time, nonce, signature)
-      cookies.map { |c| HTTPI::Cookie.new(c) }
+      to_cookie_array(time, nonce, signature).map { |c| HTTPI::Cookie.new(c) }
     end
 
     def to_soap(options)
