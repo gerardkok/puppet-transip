@@ -51,7 +51,7 @@ module Transip
         end
       end
 
-      def .set_entries(domain, entries)
+      def set_entries(domain, entries)
         dnsentries = entries.map { |e| to_dnsentry(e) }
         domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
   #    rescue Transip::ApiError
