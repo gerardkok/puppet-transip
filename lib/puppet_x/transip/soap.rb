@@ -15,7 +15,7 @@ module Transip
       @private_key = OpenSSL::PKey::RSA.new(key)
 
       @username = options[:username]
-      raise ArgumentError, "The :username and :key options are required!" if @username.nil? or @key.nil?
+      raise ArgumentError, "The :username and :key options are required!" if @username.nil? or key.nil?
 
       @mode = options[:mode] || :readonly
 
