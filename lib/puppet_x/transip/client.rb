@@ -18,7 +18,6 @@ module Transip
 
     def self.domain_names
       @domain_names ||= domainclient.request(:get_domain_names)
-      puts "domain names: #{@domain_names}\n"
     rescue Savon::SOAPFault
       raise Puppet::Error, 'Unable to get domain names'
     end
