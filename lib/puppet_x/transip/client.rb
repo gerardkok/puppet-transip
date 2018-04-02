@@ -17,7 +17,7 @@ module Transip
     end
 
     def self.domain_names
-      @domain_names ||= domainclient.request(:get_domain_names)
+      @domain_names ||= domainclient.request(:get_domain_names)[:item]
     rescue Savon::SOAPFault
       raise Puppet::Error, 'Unable to get domain names'
     end
