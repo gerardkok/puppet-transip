@@ -81,6 +81,7 @@ module Transip
         '__nonce' => nonce
       }
       serialized_input = encode_params(input.merge(options))
+      puts "serialized: #{serialized_input}\n"
       sign(serialized_input)
     end    
     
