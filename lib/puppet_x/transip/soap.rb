@@ -140,10 +140,11 @@ module Transip
       puts "response action: #{response_action}\n"
       result = response.body.values.first[:return]
       puts "result: #{result}\n"
+      result
 
-      r = from_soap(result)
-      puts "return: #{r}\n"
-      r
+#      r = from_soap(result)
+#      puts "return: #{r}\n"
+#      r
     end
     
     def from_hash(hash)
