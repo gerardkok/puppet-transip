@@ -131,6 +131,7 @@ module Transip
         :message => fix_array_defs(options),
         :cookies => cookies(formatted_action, options, @username, @mode, API_VERSION, API_SERVICE, ENDPOINT, @key)
       }
+      puts "parameters: #{parameters.inspect}\n"
       response = @client.call(action, parameters)
 
       from_soap(response.body[action][:return])
