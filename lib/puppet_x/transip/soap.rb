@@ -133,6 +133,7 @@ module Transip
       }
       puts "parameters: #{parameters.inspect}\n"
       response = @client.call(action, parameters)
+      puts "response body: #{response.body}\n"
 
       from_soap(response.body[action][:return])
     end
