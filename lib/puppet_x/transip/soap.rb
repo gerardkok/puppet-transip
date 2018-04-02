@@ -11,6 +11,8 @@ module Transip
 
     def initialize(options = {})
       @key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
+      raise "Invalid RSA key" unless @key =~ /-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----/sim
+
       @username = options[:username]
       raise ArgumentError, "The :username and :key options are required!" if @username.nil? or @key.nil?
 
@@ -62,22 +64,19 @@ module Transip
       end
     end
       
-    def signature(formatted_method, parameters, time, nonce, api_service, hostname, key)
-      parameters ||= {}
+    def signature(method, parameters = {}, time, nonce)
       input = convert_array_to_hash(parameters.values)
       options = {
-        '__method' => formatted_method,
-        '__service' => api_service,
-        '__hostname' => hostname,
+        '__method' => method,
+        '__service' => API_SERVICE,
+        '__hostname' => ENDPOINT,
         '__timestamp' => time,
         '__nonce' => nonce
       }
-      input.merge!(options)
-      raise "Invalid RSA key" unless key =~ /-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----/sim
-      serialized_input = encode_params(input)
+      serialized_input = encode_params(input.merge(options))
     
       digest = OpenSSL::Digest::SHA512.new
-      private_key = OpenSSL::PKey::RSA.new(key)
+      private_key = OpenSSL::PKey::RSA.new(@key)
       encrypted_asn = private_key.sign(digest, serialized_input)
       readable_encrypted_asn = Base64.encode64(encrypted_asn)
       urlencode(readable_encrypted_asn)
@@ -89,16 +88,16 @@ module Transip
       end
     end
 
-    def cookies(method, parameters, username, mode, api_version, api_service, hostname, key)
+    def cookies(method, parameters)
       time = Time.new.to_i
       #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
       nonce = SecureRandom.uuid.gsub("-", '')
-      to_cookies [ "login=#{username}",
-                   "mode=#{mode}",
+      to_cookies [ "login=#{@username}",
+                   "mode=#{@mode}",
                    "timestamp=#{time}",
                    "nonce=#{nonce}",
-                   "clientVersion=#{api_version}",
-                   "signature=#{signature(method, parameters, time, nonce, api_service, hostname, key)}"
+                   "clientVersion=#{API_VERSION}",
+                   "signature=#{signature(method, parameters, time, nonce)}"
                  ]
     end
 
@@ -139,7 +138,7 @@ module Transip
 
       parameters = {
         :message => to_soap(options),
-        :cookies => cookies(formatted_action, options, @username, @mode, API_VERSION, API_SERVICE, ENDPOINT, @key)
+        :cookies => cookies(formatted_action, options)
       }
       puts "parameters: #{parameters.inspect}\n"
       response = @client.call(action, parameters)
