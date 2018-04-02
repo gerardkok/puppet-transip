@@ -136,8 +136,9 @@ module Transip
       response = @client.call(action, parameters)
       puts "response: #{response}\n"
       puts "response body: #{response.body}\n"
+      response_action = "#{action}_response".to_sym
 
-      from_soap(response.body[action][:return])
+      from_soap(response.body[response_action][:return])
     end
     
     def from_hash(hash)
