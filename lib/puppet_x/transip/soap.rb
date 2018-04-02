@@ -130,8 +130,9 @@ module Transip
       formatted_action = camelize(action)
 
       message = to_soap(options)
+      puts "message: #{message.inspect}\n"
       cookies = cookies(formatted_action, options)
-      puts "parameters: #{parameters.inspect}\n"
+      puts "cookies: #{cookies.inspect}\n"
       response = @client.call(action, message: message, cookies: cookies)
       puts "response: #{response}\n"
       puts "response body: #{response.body}\n"
