@@ -63,7 +63,8 @@ module Transip
       end
     end
       
-    def signature(method, parameters = {}, time, nonce)
+    def signature(action, parameters = {}, time, nonce)
+      method = camelize(action)
       input = convert_array_to_hash(parameters.values)
       options = {
         '__method' => method,
@@ -85,11 +86,11 @@ module Transip
       %W[ login=#{@username} mode=#{@mode} timestamp=#{time} nonce=#{nonce} clientVersion=#{API_VERSION} signature=#{signature} ]
     end
 
-    def cookies(method, options = {})
+    def cookies(action, options = {})
       time = Time.new.to_i
       #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
       nonce = SecureRandom.uuid.gsub("-", '')
-      signature = signature(method, options, time, nonce)
+      signature = signature(action, options, time, nonce)
       cookies = to_cookie_array(time, nonce, signature)
       cookies.map { |c| HTTPI::Cookie.new(c) }
     end
@@ -127,10 +128,9 @@ module Transip
 
     def request(action, options = {})
       puts "request(#{action}, #{options.inspect})\n"
-      camelized_action = camelize(action)
       response_action = "#{action}_response".to_sym
       message = to_soap(options)
-      cookies = cookies(camelized_action, options)
+      cookies = cookies(action, options)
       response = @client.call(action, message: message, cookies: cookies)
       result = from_soap(response.body[response_action][:return])
       puts "result: #{result}\n"
