@@ -137,8 +137,13 @@ module Transip
       puts "response: #{response}\n"
       puts "response body: #{response.body}\n"
       response_action = "#{action}_response".to_sym
+      puts "response action: #{response_action}\n"
+      result = response.body[response_action][:return]
+      puts "result: #{result}\n"
 
-      from_soap(response.body[response_action][:return])
+      r = from_soap(result)
+      puts "return: #{r}\n"
+      r
     end
     
     def from_hash(hash)
