@@ -72,7 +72,7 @@ module Transip
 
     def signature(action, parameters = {}, time, nonce)
       puts "parameters: #{parameters.inspect}\n"
-#      input = convert_array_to_hash(parameters.values)
+      input = convert_array_to_hash(parameters.values)
       options = {
         '__method' => camelize(action),
         '__service' => API_SERVICE,
