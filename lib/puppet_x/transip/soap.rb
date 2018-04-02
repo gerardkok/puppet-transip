@@ -7,7 +7,7 @@ module Transip
     API_VERSION ||= '5.6'.freeze
     ENDPOINT ||= 'api.transip.nl'.freeze
     API_SERVICE ||= 'DomainService'.freeze
-    WSDL ||= "https://api.transip.nl/wsdl/?service=#{API_SERVICE}".freeze
+    WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
 
     def initialize(options = {})
       @key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
@@ -22,9 +22,10 @@ module Transip
 
       @client = Savon::Client.new(@savon_options) do
         namespaces(
-          "xmlns:enc" => "http://schemas.xmlsoap.org/soap/encoding/"
+          'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/'
         )
       end
+      puts: "client: #{client.inspect}\n"
     end
 
     def camelize(word)
