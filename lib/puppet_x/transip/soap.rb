@@ -10,8 +10,9 @@ module Transip
     WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
 
     def initialize(options = {})
-      @key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
-      raise "Invalid RSA key" unless @key =~ /-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----/sim
+      key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
+      raise "Invalid RSA key" unless key =~ /-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----/sim
+      @private_key = OpenSSL::PKey::RSA.new(key)
 
       @username = options[:username]
       raise ArgumentError, "The :username and :key options are required!" if @username.nil? or @key.nil?
@@ -62,7 +63,13 @@ module Transip
         urlencode(params)
       end
     end
-      
+
+    def sign(input)
+      digest = OpenSSL::Digest::SHA512.new
+      signed_input = @private_key.sign(digest, input)
+      urlencode(Base64.encode64(signed_input))
+    end
+
     def signature(action, parameters = {}, time, nonce)
       method = camelize(action)
       input = convert_array_to_hash(parameters.values)
@@ -74,12 +81,7 @@ module Transip
         '__nonce' => nonce
       }
       serialized_input = encode_params(input.merge(options))
-    
-      digest = OpenSSL::Digest::SHA512.new
-      private_key = OpenSSL::PKey::RSA.new(@key)
-      encrypted_asn = private_key.sign(digest, serialized_input)
-      readable_encrypted_asn = Base64.encode64(encrypted_asn)
-      urlencode(readable_encrypted_asn)
+      sign(serialized_input)
     end    
     
     def to_cookie_array(time, nonce, signature)
@@ -126,14 +128,11 @@ module Transip
     end
 
     def request(action, options = {})
-      puts "request(#{action}, #{options.inspect})\n"
       response_action = "#{action}_response".to_sym
       message = to_soap(options)
       cookies = cookies(action, options)
       response = @client.call(action, message: message, cookies: cookies)
-      result = from_soap(response.body[response_action][:return])
-      puts "result: #{result}\n"
-      result
+      from_soap(response.body[response_action][:return])
     end
     
     def from_hash(hash)
