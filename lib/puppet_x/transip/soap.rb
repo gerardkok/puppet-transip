@@ -25,7 +25,7 @@ module Transip
           'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/'
         )
       end
-      puts "client: #{client.inspect}\n"
+      puts "client: #{@client.inspect}\n"
     end
 
     def camelize(word)
@@ -134,6 +134,7 @@ module Transip
       }
       puts "parameters: #{parameters.inspect}\n"
       response = @client.call(action, parameters)
+      puts "response: #{response}\n"
       puts "response body: #{response.body}\n"
 
       from_soap(response.body[action][:return])
