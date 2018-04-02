@@ -126,8 +126,10 @@ module Transip
     def request(action, options = {})
       formatted_action = camelize(action)
 
-      parameters[:message] = fix_array_defs(options)
-      parameters[:cookies] = cookies(formatted_action, options, username, mode, api_version, api_service, endpoint, key)
+      parameters = {
+        :message => fix_array_defs(options),
+        :cookies => cookies(formatted_action, options, username, mode, api_version, api_service, endpoint, key)
+      }
       response = @client.call(action, parameters)
 
       from_soap(response.body[action][:return])
