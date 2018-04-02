@@ -147,7 +147,7 @@ module Transip
       puts "response body: #{response.body}\n"
       response_action = "#{action}_response".to_sym
       puts "response action: #{response_action}\n"
-      result = response.body.values.first[:return]
+      result = from_soap(response.body.values.first[:return])
       puts "result: #{result}\n"
       result
 
