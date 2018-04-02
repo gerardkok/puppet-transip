@@ -43,19 +43,15 @@ module Transip
       domain['dnsEntries'].map { |e| to_entry(e) }
     end
 
-    def self.to_entries(entries)
-      entries.map { |e| }
-
     def self.all_entries
       puts "domain names in all_entries: #{domain_names}\n"
       dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names)
       puts "dnsentries: #{dnsentries.inspect}\n"
-  #    dnsentries.each_with_object({}) do |domain, memo|
-  #      name = domain[:name]
-  #      memo[name] = domain[:dns_entries]
-  #      puts "name: #{name}\n"
-  #    end
-      {}
+      dnsentries.each_with_object({}) do |domain, memo|
+        name = domain[:name]
+        puts "name: #{name}\n"
+        memo[name] = domain[:dns_entries]       
+      end
     end
 #      dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
 #      dnsentries.each_with_object({}) do |domain, memo|
