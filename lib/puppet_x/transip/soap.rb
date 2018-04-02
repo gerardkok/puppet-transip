@@ -128,7 +128,7 @@ module Transip
 
       parameters = {
         :message => fix_array_defs(options),
-        :cookies => cookies(formatted_action, options, username, mode, api_version, api_service, endpoint, key)
+        :cookies => cookies(formatted_action, options, @username, @mode, API_VERSION, API_SERVICE, ENDPOINT, @key)
       }
       response = @client.call(action, parameters)
 
