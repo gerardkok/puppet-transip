@@ -5,6 +5,7 @@ Puppet::Type.type(:dns_record).provide(:api) do
 
   mk_resource_methods
   def self.instances
+    puts "instances\n"
     collapsed_instances.map do |e|
       new(ensure: :present, name: e[:name], fqdn: e[:fqdn], content: e[:content], type: e[:type], ttl: e[:expire])
     end
