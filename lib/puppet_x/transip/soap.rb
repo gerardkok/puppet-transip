@@ -102,25 +102,34 @@ module Transip
                  ]
     end
 
-    def fix_array_defs(options)
-      options.each_with_object({}) do |(k, v), h|
-        h[k] = case v
-        when Array
-          if v.empty?
-            {}
-          else
-            entry_name = v.first.class.name.split(':').last
-            {
-              'item' => {:content! => v, :'@xsi:type' => "tns:#{entry_name}"},
-              :'@xsi:type' => "tns:ArrayOf#{entry_name}",
-              :'@enc:arrayType' => "tns:#{entry_name}[#{v.size}]"
-            }
-          end
-        when Hash
-          fix_array_defs(v)
-        else
-          v
-        end
+    def to_soap(options)
+      case options
+      when Array
+        array_to_soap(options)
+      when Hash
+        hash_to_soap(options)
+      else
+        options
+      end
+    end
+    
+    def array_to_soap(options)
+      if options.empty?
+        {}
+      else
+        entry_type = options.first.class.name.split(':').last
+        soaped_opts = options.map { |o| to_soap(o) }
+        {
+          'item' => {:content! => soaped_opts, :'@xsi:type' => "tns:#{entry_type}"},
+          :'@xsi:type' => "tns:ArrayOf#{entry_type}",
+          :'@enc:arrayType' => "tns:#{entry_type}[#{options.size}]"
+        }
+      end
+    end
+    
+    def hash_to_soap(options)
+      options.each_with_object({}) do |(k, v), memo|
+        memo[k] = to_soap(v)
       end
     end
 
@@ -129,7 +138,7 @@ module Transip
       formatted_action = camelize(action)
 
       parameters = {
-        :message => fix_array_defs(options),
+        :message => to_soap(options),
         :cookies => cookies(formatted_action, options, @username, @mode, API_VERSION, API_SERVICE, ENDPOINT, @key)
       }
       puts "parameters: #{parameters.inspect}\n"
@@ -148,26 +157,23 @@ module Transip
     end
     
     def from_hash(hash)
-      result = {}
-      hash.each do |key, value|
-        result[key] = from_soap(value) unless key[0].to_s == '@'
+      if hash.keys.first == :item
+        from_soap(hash[:item])
+      else
+        hash.each_with_object({}) do |(k, v), memo|
+          memo[k] = from_soap(v) unless k[0].to_s == '@'
+        end
       end
-      result
     end
     
     def from_soap(input)
       if input.is_a? Array
-        result = input.map {|value| from_soap(value)}
+        input.map {|value| from_soap(value)}
       elsif input.is_a? Hash
-        if input.keys.first == :item
-          result = from_soap(input[:item])
-        else
-          result = from_hash(input)
-        end
+        from_hash(input)
       else
-        result = input
+        input
       end
-      result
     end
   end
 end
