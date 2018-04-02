@@ -1,6 +1,6 @@
 require 'yaml'
 require 'puppet'
-require File.expand_path(File.join(File.dirname(__FILE__), 'savon'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'soap'))
 
 module Transip
   class Client
@@ -13,11 +13,12 @@ module Transip
     end
 
     def self.domainclient
-      @domainclient ||= Transip::Savon.new(username: credentials['username'], key_file: credentials['key_file'], mode: :readwrite)
+      @domainclient ||= Transip::Soap.new(username: credentials['username'], key_file: credentials['key_file'], mode: :readwrite)
     end
 
     def self.domain_names
       @domain_names ||= domainclient.request(:get_domain_names)
+      puts "domain names: #{domain_names}\n"
     rescue Savon::SOAPFault
       raise Puppet::Error, 'Unable to get domain names'
     end

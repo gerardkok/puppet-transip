@@ -3,7 +3,7 @@ require 'openssl'
 require 'savon' if Puppet.features.savon?
 
 module Transip
-  class Savon
+  class Soap
     API_VERSION ||= '5.6'.freeze
     ENDPOINT ||= 'api.transip.nl'.freeze
     API_SERVICE ||= 'DomainService'.freeze
