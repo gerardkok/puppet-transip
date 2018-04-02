@@ -71,16 +71,23 @@ module Transip
     end
 
     def signature(action, parameters = {}, time, nonce)
+      puts "parameters: #{parameters.inspect}\n"
       method = camelize(action)
       input = convert_array_to_hash(parameters.values)
-      options = {
-        '__method' => method,
-        '__service' => API_SERVICE,
-        '__hostname' => ENDPOINT,
-        '__timestamp' => time,
-        '__nonce' => nonce
-      }
-      serialized_input = encode_params(input.merge(options))
+      input['__method'] = method
+      input['__service'] = API_SERVICE
+      input['__hostname'] = ENDPOINT
+      input['__timestmap'] = time
+      input['__nonce'] = nonce
+#      options = {
+#        '__method' => method,
+#        '__service' => API_SERVICE,
+#        '__hostname' => ENDPOINT,
+#        '__timestamp' => time,
+#        '__nonce' => nonce
+#      }
+ #     serialized_input = encode_params(input.merge(options))
+      serialized_input = encode_params(input)
       sign(serialized_input)
     end    
     
