@@ -124,6 +124,7 @@ module Transip
     end
 
     def request(action, options = {})
+      puts "request(#{action}, #{options.inspect})\n"
       formatted_action = camelize(action)
 
       parameters = {
