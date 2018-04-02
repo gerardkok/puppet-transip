@@ -1,6 +1,6 @@
 require 'yaml'
 require 'puppet'
-require 'transip' if Puppet.features.transip?
+require File.expand_path(File.join(File.dirname(__FILE__), 'savon'))
 
 module Transip
   class Client
@@ -13,12 +13,12 @@ module Transip
     end
 
     def self.domainclient
-      @domainclient ||= Transip::DomainClient.new(username: credentials['username'], key_file: credentials['key_file'], ip: credentials['ip'], mode: :readwrite)
+      @domainclient ||= Transip::Savon.new(username: credentials['username'], key_file: credentials['key_file'], mode: :readwrite)
     end
 
     def self.domain_names
       @domain_names ||= domainclient.request(:get_domain_names)
-    rescue Transip::ApiError
+    rescue Savon::SOAPFault
       raise Puppet::Error, 'Unable to get domain names'
     end
 
@@ -29,13 +29,14 @@ module Transip
     end
 
     def self.to_dnsentry(entry)
-      Transip::DnsEntry.new(entry[:name], entry[:expire], entry[:type], entry[:content])
+#      Transip::DnsEntry.new(entry[:name], entry[:expire], entry[:type], entry[:content])
+      entry.dup
     end
 
     def self.entries(domainname)
       to_array(domainclient.request(:get_info, domain_name: domainname).to_hash[:domain])
-    rescue Transip::ApiError
-      raise Puppet::Error, "Unable to get entries for #{domainname}"
+#    rescue Transip::ApiError
+#      raise Puppet::Error, "Unable to get entries for #{domainname}"
     end
 
     def self.to_array(domain)
@@ -48,15 +49,15 @@ module Transip
         d = domain[:domain]
         memo[d['name']] = to_array(d)
       end
-    rescue Transip::ApiError
-      raise Puppet::Error, 'Unable to get entries for all domains'
+#    rescue Transip::ApiError
+#      raise Puppet::Error, 'Unable to get entries for all domains'
     end
 
     def self.set_entries(domain, entries)
       dnsentries = entries.map { |e| to_dnsentry(e) }
       domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
-    rescue Transip::ApiError
-      raise Puppet::Error, "Unable to set entries for #{domain}"
+#    rescue Transip::ApiError
+#      raise Puppet::Error, "Unable to set entries for #{domain}"
     end
   end
 end
