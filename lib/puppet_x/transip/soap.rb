@@ -90,7 +90,7 @@ module Transip
       #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
       nonce = SecureRandom.uuid.gsub("-", '')
       signature = signature(method, options, time, nonce)
-      cookies = to_cookie_array(time, none, signature)
+      cookies = to_cookie_array(time, nonce, signature)
       cookies.map { |c| HTTPI::Cookie(c) }
     end
 
