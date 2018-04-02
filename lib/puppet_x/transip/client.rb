@@ -43,10 +43,16 @@ module Transip
       domain['dnsEntries'].map { |e| to_entry(e) }
     end
 
+    def self.to_entries(entries)
+      entries.map { |e| }
+
     def self.all_entries
       puts "domain names in all_entries: #{domain_names}\n"
       dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names)
       puts "dnsentries: #{dnsentries.inspect}\n"
+      r = dnsentries.each_with_object({}) do |domain, memo|
+        memo[domain[:name]] = domain[:dns_entries]
+      end
 #      dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
 #      dnsentries.each_with_object({}) do |domain, memo|
 #        d = domain[:domain]
@@ -54,7 +60,8 @@ module Transip
 #      end
 #    rescue Transip::ApiError
 #      raise Puppet::Error, 'Unable to get entries for all domains'
-      {}
+      puts "all_entries result: #{r}\n"
+      r
     end
 
     def self.set_entries(domain, entries)
