@@ -27,7 +27,6 @@ module Transip
           'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/'
         )
       end
-#      puts "client: #{@client.inspect}\n"
     end
 
     def camelize(word)
@@ -82,23 +81,17 @@ module Transip
       urlencode(readable_encrypted_asn)
     end    
     
-    def to_cookies(content)
-      content.map do |item|
-        HTTPI::Cookie.new item
-      end
+    def to_cookie_array(time, nonce, signature)
+      %W[ login=#{@username} mode=#{@mode} timestamp=#{time} nonce=#{nonce} clientVersion=#{API_VERSION} signature=#{signature} ]
     end
 
-    def cookies(method, parameters)
+    def cookies(method, options = {})
       time = Time.new.to_i
       #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
       nonce = SecureRandom.uuid.gsub("-", '')
-      to_cookies [ "login=#{@username}",
-                   "mode=#{@mode}",
-                   "timestamp=#{time}",
-                   "nonce=#{nonce}",
-                   "clientVersion=#{API_VERSION}",
-                   "signature=#{signature(method, parameters, time, nonce)}"
-                 ]
+      signature = signature(method, options, time, nonce)
+      cookies = to_cookie_array(time, none, signature)
+      cookies.map { |c| HTTPI::Cookie(c) }
     end
 
     def to_soap(options)
@@ -136,12 +129,10 @@ module Transip
       puts "request(#{action}, #{options.inspect})\n"
       formatted_action = camelize(action)
 
-      parameters = {
-        :message => to_soap(options),
-        :cookies => cookies(formatted_action, options)
-      }
+      message = to_soap(options)
+      cookies = cookies(formatted_action, options)
       puts "parameters: #{parameters.inspect}\n"
-      response = @client.call(action, parameters)
+      response = @client.call(action, message: message, cookies: cookies)
       puts "response: #{response}\n"
       puts "response body: #{response.body}\n"
       response_action = "#{action}_response".to_sym
