@@ -34,6 +34,8 @@ module Transip
         dnsentries.each_with_object({}) do |domain, memo|
           memo[domain[:name]] = domain[:dns_entries]       
         end
+      rescue Savon::SOAPFault
+        raise Puppet::Error, 'Unable to get entries for all domains'
       end
 
       def set_entries(domain, entries)
