@@ -96,16 +96,15 @@ module Transip
       if options.empty?
         {}
       else
-        entry_type = options.first.class.name
-        soaped_opts = options.map { |o| to_soap(o) }
-        {
-          'item' => {:content! => soaped_opts, :'@xsi:type' => "tns:#{entry_type}"},
-          :'@xsi:type' => "tns:ArrayOf#{entry_type}",
-          :'@enc:arrayType' => "tns:#{entry_type}[#{options.size}]"
+        type = options.first.class.name
+        soaped_options = options.map { |o| to_soap(o) }
+        { item: { content!: soaped_options, '@xsi:type': "tns:#{type}" },
+          '@xsi:type': "tns:ArrayOf#{type}",
+          '@enc:arrayType': "tns:#{type}[#{soaped_options.size}]"
         }
       end
     end
-    
+
     def hash_to_soap(options)
       options.each_with_object({}) do |(k, v), memo|
         memo[k] = to_soap(v)
