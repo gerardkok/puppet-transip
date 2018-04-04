@@ -28,7 +28,7 @@ module Transip
     end
 
     def camelize(word)
-      parts = word.to_s.split("_")
+      parts = word.to_s.split('_')
       parts.first.downcase + parts[1..-1].map{ |p| p.capitalize }.join
     end
 

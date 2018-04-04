@@ -14,7 +14,7 @@ module Transip
       end
 
       def domainclient
-        @domainclient ||= Transip::Soap.new(@credentials)
+        @domainclient ||= Transip::Soap.new(options: @credentials)
       rescue ArgumentError => e
         raise Puppet::Error, "Cannot connect to endpoint: '#{e.message}'"
       end
