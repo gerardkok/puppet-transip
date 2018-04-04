@@ -14,9 +14,11 @@ Puppet::Type.newtype(:dns_record) do
   newproperty(:type) do
     desc 'The type of DNS record.'
 
-    newvalues('A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV')
+    newvalues(:A, :AAAA, :CNAME, :MX, :NS, :TXT, :SRV)
 
-    defaultto 'A'
+    munge(&:to_s)
+
+    defaultto :A
   end
 
   newproperty(:content, array_matching: :all) do
