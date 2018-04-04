@@ -45,23 +45,20 @@ module Transip
 
     def encode_params(params, prefix = nil)
       case params
-      when Array
-        p = convert_array_to_hash(params)
-        encode_params(p, prefix)
       when Hash
-        params.map do |key, value|
-          k = urlencode(key)
-          encoded_key = prefix.nil? ? k : "#{prefix}[#{k}]"
-          case value
-          when Hash, Array
-            encode_params(value, encoded_key)
-          else
-            "#{encoded_key}=#{urlencode(value)}"
-          end
-        end.join('&')
+        encode_params(params.values, prefix)
+      when Array
+        params.map.with_index do |p, i|
+          encoded_key = prefix.nil? ? urlencode(i.to_s) : "#{prefix}[#{urlencode(i.to_s)}]"
+          encode_params(p, encoded_key)
+        end.flatten
       else
-        urlencode(params)
+        ["#{prefix}=#{params}"]
       end
+    end
+
+    def message_options(method, time, nonce)
+      %W[ __method=#{camelize(method)} __service=#{API_SERVICE} __hostname=#{ENDPOINT} __timestamp=#{time} __nonce=#{nonce} ]
     end
 
     def sign(input)
@@ -72,16 +69,7 @@ module Transip
 
     def signature(action, parameters = {}, time, nonce)
       puts "parameters: #{parameters.inspect}\n"
-      input = convert_array_to_hash(parameters.values)
-      puts "input: #{input.inspect}\n"
-      options = {
-        '__method' => camelize(action),
-        '__service' => API_SERVICE,
-        '__hostname' => ENDPOINT,
-        '__timestamp' => time,
-        '__nonce' => nonce
-      }
-      serialized_input = encode_params(input.merge(options))
+      serialized_input = (encode_params(params), message_options(action, time, nonce)).join('&')
       puts "serialized: #{serialized_input}\n"
       sign(serialized_input)
     end    
