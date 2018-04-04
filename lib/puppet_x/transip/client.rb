@@ -10,13 +10,12 @@ module Transip
       end
 
       def credentials
-        creds = YAML.load_file(config_file)
-        @credentials ||= creds.each_with_object({}) { |(k,v), memo| memo[k.to_sym] = v }
+        @credentials ||= YAML.load_file(config_file).each_with_object({}) { |(k, v), memo| memo[k.to_sym] = v }
       end
 
       def domainclient
-        puts "creds: #{@credentials}\n"
-        @domainclient ||= Transip::Soap.new(@credentials)
+        puts "creds: #{credentials.inspect}\n"
+        @domainclient ||= Transip::Soap.new(credentials)
       rescue ArgumentError => e
         raise Puppet::Error, "Cannot connect to endpoint: '#{e.message}'"
       end
