@@ -1,4 +1,11 @@
 ---
 username: <%= @username %>
-ip: <%= @ip %>
+<% if @key -%>
+key: <%= @key %>
+<% end -%>
+<% if @key_file -%>
 key_file: <%= @key_file %>
+<% end -%>
+<% if @readwrite -%>
+mode: :readwrite
+<% end -%>
