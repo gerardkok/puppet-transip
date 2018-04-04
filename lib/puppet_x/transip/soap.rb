@@ -65,7 +65,7 @@ module Transip
 
     def signature(action, parameters = {}, time, nonce)
       puts "parameters: #{parameters.inspect}\n"
-      serialized_input = (encode_params(params) + message_options(action, time, nonce)).join('&')
+      serialized_input = (encode_params(parameters) + message_options(action, time, nonce)).join('&')
       puts "serialized: #{serialized_input}\n"
       sign(serialized_input)
     end    
