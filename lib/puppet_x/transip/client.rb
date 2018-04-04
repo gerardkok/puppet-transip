@@ -21,14 +21,14 @@ module Transip
 
       def domain_names
         @domain_names ||= domainclient.request(:get_domain_names)
-      rescue Savon::SOAPFault
-        raise Puppet::Error, 'Unable to get domain names'
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to get domain names: '#{e.message}'"
       end
 
       def entries(domainname)
         domainclient.request(:get_info, domain_name: domainname)[:dns_entries]
-      rescue Savon::SOAPFault
-        raise Puppet::Error, "Unable to get entries for #{domainname}"
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to get entries for #{domainname}: '#{e.message}'"
       end
 
       def all_entries
@@ -36,14 +36,14 @@ module Transip
         dnsentries.each_with_object({}) do |domain, memo|
           memo[domain[:name]] = domain[:dns_entries]       
         end
-      rescue Savon::SOAPFault
-        raise Puppet::Error, 'Unable to get entries for all domains'
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to get entries for all domains: '#{e.message}'"
       end
 
       def set_entries(domain, entries)
         domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
-      rescue Savon::SOAPFault
-        raise Puppet::Error, "Unable to set entries for #{domain}"
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to set entries for #{domain}: '#{e.message}'"
       end
     end
   end
