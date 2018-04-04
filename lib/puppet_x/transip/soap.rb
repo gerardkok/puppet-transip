@@ -108,6 +108,7 @@ module Transip
     end
 
     def request(action, options = {})
+      puts "action: #{action}; options: #{options.inspect}\n"
       response_action = "#{action}_response".to_sym
       message = to_soap(options)
       cookies = cookies(action, options)
