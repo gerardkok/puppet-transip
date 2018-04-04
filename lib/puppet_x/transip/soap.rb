@@ -10,6 +10,7 @@ module Transip
     WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
 
     def initialize(options = {})
+      puts "options: #{options.inspect}\n"
       key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
       raise ArgumentError('Invalid RSA key') unless key =~ /-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----/sim
       @private_key = OpenSSL::PKey::RSA.new(key)
