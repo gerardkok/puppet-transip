@@ -55,7 +55,7 @@ module Transip
 
       def set_entries(domain, entries)
         dnsentries = entries.map { |e| to_dnsentry(e) }
-        domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
+        domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
   #    rescue Transip::ApiError
   #      raise Puppet::Error, "Unable to set entries for #{domain}"
       end
