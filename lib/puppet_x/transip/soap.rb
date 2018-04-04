@@ -114,7 +114,10 @@ module Transip
       cookies = cookies(action, options)
       puts "message: #{message.inspect}\ncookies: #{cookies.inspect}\n"
       response = @client.call(action, message: message, cookies: cookies)
-      from_soap(response.body[response_action][:return])
+      puts "responsoe body: #{response.body}\n"
+      r = from_soap(response.body[response_action][:return])
+      puts "desoaped: #{r}\n"
+      r
     end
     
     def from_hash(hash)
