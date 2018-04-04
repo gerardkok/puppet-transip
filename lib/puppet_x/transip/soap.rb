@@ -100,7 +100,7 @@ module Transip
     def type(entry)
       case entry
       when Hash
-        dnsentry?(entry) ? 'DnsEntry' : 'Hash'
+        dnsentry?(entry) ? 'Transip_DnsEntry' : 'Hash'
       else
         entry.class.name
       end
