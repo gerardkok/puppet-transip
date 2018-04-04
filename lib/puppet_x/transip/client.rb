@@ -10,11 +10,13 @@ module Transip
       end
 
       def credentials
-        @credentials ||= YAML.load_file(config_file)
+        creds = YAML.load_file(config_file)
+        creds.each_with_object({}){|(k,v), h| h[k.to_sym] = v}
+        @credentials ||= creds.each_with_object({}){|(k,v), h| h[k.to_sym] = v}
       end
 
       def domainclient
-        @domainclient ||= Transip::Soap.new(username: @credentials['username'], key: @credentials['key'], key_file: @credentials['key_file'], mode: @credentials['mode'])
+        @domainclient ||= Transip::Soap.new(@credentials)
       rescue ArgumentError => e
         raise Puppet::Error, "Cannot connect to endpoint: '#{e.message}'"
       end
