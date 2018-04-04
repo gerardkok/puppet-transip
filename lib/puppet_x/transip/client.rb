@@ -23,27 +23,10 @@ module Transip
         raise Puppet::Error, 'Unable to get domain names'
       end
 
-      def to_entry(dnsentry)
-        %i[name content type expire].each_with_object({}) do |i, memo|
-          memo[i] = dnsentry[i.to_s]
-        end
-      end
-
-      def to_dnsentry(entry)
-  #      Transip::DnsEntry.new(entry[:name], entry[:expire], entry[:type], entry[:content])
-        entry.dup
-      end
-
       def entries(domainname)
-        dnsentries = domainclient.request(:get_info, domain_name: domainname)
-        puts "dns entries: #{dnsentries.inspect}\n"
-        dnsentries[:dns_entries]
-  #    rescue Transip::ApiError
-  #      raise Puppet::Error, "Unable to get entries for #{domainname}"
-      end
-
-      def to_array(domain)
-        domain['dnsEntries'].map { |e| to_entry(e) }
+        domainclient.request(:get_info, domain_name: domainname)[:dns_entries]
+      rescue Savon::SOAPFault
+        raise Puppet::Error, "Unable to get entries for #{domainname}"
       end
 
       def all_entries
@@ -54,10 +37,9 @@ module Transip
       end
 
       def set_entries(domain, entries)
-        dnsentries = entries.map { |e| to_dnsentry(e) }
         domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
-  #    rescue Transip::ApiError
-  #      raise Puppet::Error, "Unable to set entries for #{domain}"
+      rescue Savon::SOAPFault
+        raise Puppet::Error, "Unable to set entries for #{domain}"
       end
     end
   end

@@ -19,11 +19,7 @@ module Transip
 
       @mode = options[:mode] || :readonly
 
-      @savon_options = {
-        :wsdl => WSDL
-      }
-
-      @client = Savon::Client.new(@savon_options) do
+      @client = Savon::Client.new(:wsdl => WSDL) do
         namespaces(
           'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/'
         )
@@ -112,16 +108,11 @@ module Transip
     end
 
     def request(action, options = {})
-      puts "action: #{action}; options: #{options.inspect}\n"
       response_action = "#{action}_response".to_sym
       message = to_soap(options)
       cookies = cookies(action, options)
-      puts "message: #{message.inspect}\ncookies: #{cookies.inspect}\n"
       response = @client.call(action, message: message, cookies: cookies)
-      puts "responsoe body: #{response.body}\n"
-      r = from_soap(response.body[response_action])
-      puts "desoaped: #{r}\n"
-      r
+      from_soap(response.body[response_action])
     end
     
     def from_hash(hash)
