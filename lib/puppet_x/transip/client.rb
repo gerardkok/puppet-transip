@@ -14,9 +14,8 @@ module Transip
       end
 
       def domainclient
-        puts "creds: #{credentials.inspect}\n"
         @domainclient ||= Transip::Soap.new(credentials)
-      rescue ArgumentError => e
+      rescue ArgumentError, Savon::SOAPFault => e
         raise Puppet::Error, "Cannot connect to endpoint: '#{e.message}'"
       end
 
