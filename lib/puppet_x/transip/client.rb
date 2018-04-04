@@ -1,6 +1,6 @@
 require 'yaml'
 require 'puppet'
-require 'soap'
+require File.expand_path(File.join(File.dirname(__FILE__), 'soap'))
 
 module Transip
   class Client
