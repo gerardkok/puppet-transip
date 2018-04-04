@@ -11,6 +11,7 @@ module Transip
     ENDPOINT ||= 'api.transip.nl'.freeze
     API_SERVICE ||= 'DomainService'.freeze
     WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
+    NAMESPACES ||= { 'xmlns:enc': 'http://schemas.xmlsoap.org/soap/encoding/' }.freeze
 
     class << self
        def from_hash(hash)
@@ -126,11 +127,7 @@ module Transip
 
       @mode = options[:mode] || :readonly
 
-      @client = Savon::Client.new(wsdl: WSDL) do
-        namespaces(
-          'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/'
-        )
-      end
+      @client = Savon::Client.new(wsdl: WSDL, namespaces: NAMESPACES)
     end
 
     def request(action, options = {})
