@@ -35,10 +35,6 @@ module Transip
       parts.first.downcase + parts[1..-1].map{ |p| p.capitalize }.join
     end
     
-    def convert_array_to_hash(array)
-      Hash[(0...array.size).zip(array)]
-    end
-    
     def urlencode(input)
       URI.encode_www_form_component(input).gsub('+', '%20').gsub('%7E', '~').gsub('*', '%2A')
     end
