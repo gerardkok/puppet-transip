@@ -35,7 +35,9 @@ module Transip
       end
 
       def entries(domainname)
-        to_array(domainclient.request(:get_info, domain_name: domainname).to_hash[:domain])
+        dnsentries = domainclient.request(:get_info, domain_name: domainname)
+        puts "dns entries: #{dnsentries.inspect}\n"
+        dnsentries[:dns_entries]
   #    rescue Transip::ApiError
   #      raise Puppet::Error, "Unable to get entries for #{domainname}"
       end
