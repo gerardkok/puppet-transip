@@ -34,22 +34,27 @@ module Transip
       parts = word.to_s.split("_")
       parts.first.downcase + parts[1..-1].map{ |p| p.capitalize }.join
     end
+
+    def array_to_indexed_hash(array)
+      Hash[(0...array.size).zip(array)]
+    end
     
     def urlencode(input)
       URI.encode_www_form_component(input).gsub('+', '%20').gsub('%7E', '~').gsub('*', '%2A')
     end
 
-    def encode_params(params, prefix = nil)
+    def encode(params, prefix = nil)
       case params
       when Hash
-        encode_params(params.values, prefix)
+        params.map do |key, value|
+          encoded_key = prefix.nil? ? urlencode(key.to_s) : "#{prefix}[#{urlencode(key.to_s)}]"
+          encode(value, encoded_key)
+        end
       when Array
-        params.map.with_index do |p, i|
-          encoded_key = prefix.nil? ? urlencode(i.to_s) : "#{prefix}[#{urlencode(i.to_s)}]"
-          encode_params(p, encoded_key)
-        end.flatten
+        h = array_to_indexed_hash(params)
+        encode(h, prefix)
       else
-        ["#{prefix}=#{params}"]
+        ["#{prefix}=#{urlencode(params)}"]
       end
     end
 
@@ -71,7 +76,7 @@ module Transip
       time = Time.new.to_i
       #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
       nonce = SecureRandom.uuid.gsub("-", '')
-      serialized_input = (encode_params(options) + message_options(action, time, nonce)).join('&')
+      serialized_input = (encode(options.values) + message_options(action, time, nonce)).join('&')
       signature = sign(serialized_input)
       to_cookie_array(time, nonce, signature).map { |c| HTTPI::Cookie.new(c) }
     end
@@ -115,14 +120,15 @@ module Transip
       puts "message: #{message.inspect}\ncookies: #{cookies.inspect}\n"
       response = @client.call(action, message: message, cookies: cookies)
       puts "responsoe body: #{response.body}\n"
-      r = from_soap(response.body[response_action][:return])
+      r = from_soap(response.body[response_action])
       puts "desoaped: #{r}\n"
       r
     end
     
     def from_hash(hash)
-      if hash.keys.first == :item
-        from_soap(hash[:item])
+      firstkey = hash.keys.first
+      if firstkey == :item || firstkey == :return
+        from_soap(hash[firstkey])
       else
         hash.each_with_object({}) do |(k, v), memo|
           memo[k] = from_soap(v) unless k[0].to_s == '@'
