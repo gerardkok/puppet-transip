@@ -132,10 +132,10 @@ module Transip
 
     def request(action, options = {})
       response_action = "#{action}_response".to_sym
-      message = self.to_soap(options)
-      cookies = self.cookies(action, @username, @mode, API_VERSION, ENDPOINT, @private_key, options)
+      message = self.class.to_soap(options)
+      cookies = self.class.cookies(action, @username, @mode, API_VERSION, ENDPOINT, @private_key, options)
       response = @client.call(action, message: message, cookies: cookies)
-      self.from_soap(response.body[response_action])
+      self.class.from_soap(response.body[response_action])
     end
   end
 end
