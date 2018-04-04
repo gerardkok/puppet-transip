@@ -1,7 +1,7 @@
 class transip (
-  String $username,
-  Optional[String] $key,
-  Optional[String] $key_file,
+  String $username           = '',
+  Optional[String] $key      = undef,
+  Optional[String] $key_file = undef,
   Boolean $readwrite         = false,
   String $owner              = $::transip::params::owner,
   String $group              = $::transip::params::group,
