@@ -1,5 +1,8 @@
 require 'uri'
 require 'openssl'
+require 'time'
+require 'securerandom'
+require 'file'
 require 'savon' if Puppet.features.savon?
 
 module Transip
