@@ -96,7 +96,7 @@ module Transip
       if options.empty?
         {}
       else
-        type = options.first.class.name
+        type = options.first.class.name.split(':').last
         soaped_options = options.map { |o| to_soap(o) }
         { item: { content!: soaped_options, '@xsi:type': "tns:#{type}" },
           '@xsi:type': "tns:ArrayOf#{type}",
