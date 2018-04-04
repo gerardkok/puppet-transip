@@ -25,9 +25,10 @@ module Transip
       end
       
       def from_soap(input)
-        if input.is_a? Array
-          input.map {|value| from_soap(value)}
-        elsif input.is_a? Hash
+        case input
+        when Array
+          input.map { |value| from_soap(value) }
+        when Hash
           from_hash(input)
         else
           input
