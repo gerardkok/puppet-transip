@@ -111,6 +111,7 @@ module Transip
       response_action = "#{action}_response".to_sym
       message = to_soap(options)
       cookies = cookies(action, options)
+      puts "message: #{message.inspect}\ncookies: #{cookies.inspect}\n"
       response = @client.call(action, message: message, cookies: cookies)
       from_soap(response.body[response_action][:return])
     end
