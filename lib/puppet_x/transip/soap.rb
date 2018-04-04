@@ -60,7 +60,7 @@ module Transip
       end
   
       def message_options(method, api_service, hostname, time, nonce)
-        %W[ __method=#{camelize(method)} __service=#{api_version} __hostname=#{hostname} __timestamp=#{time} __nonce=#{nonce} ]
+        %W[ __method=#{camelize(method)} __service=#{api_service} __hostname=#{hostname} __timestamp=#{time} __nonce=#{nonce} ]
       end
   
       def sign(input, private_key)
@@ -73,11 +73,11 @@ module Transip
         %W[ login=#{username} mode=#{mode} timestamp=#{time} nonce=#{nonce} clientVersion=#{api_version} signature=#{signature} ]
       end
   
-      def cookies(action, username, mode, api_version, hostname, private_key, options = {})
+      def cookies(action, username, mode, api_service, api_version, hostname, private_key, options = {})
         time = Time.new.to_i
         #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
         nonce = SecureRandom.uuid.gsub("-", '')
-        serialized_input = (encode(options.values) + message_options(action, api_version, hostname, time, nonce)).join('&')
+        serialized_input = (encode(options.values) + message_options(action, api_service, hostname, time, nonce)).join('&')
         signature = sign(serialized_input, private_key)
         to_cookie_array(username, mode, time, nonce, api_version, signature).map { |c| HTTPI::Cookie.new(c) }
       end
@@ -133,7 +133,7 @@ module Transip
     def request(action, options = {})
       response_action = "#{action}_response".to_sym
       message = self.class.to_soap(options)
-      cookies = self.class.cookies(action, @username, @mode, API_VERSION, ENDPOINT, @private_key, options)
+      cookies = self.class.cookies(action, @username, @mode, API_SERVICE, API_VERSION, ENDPOINT, @private_key, options)
       response = @client.call(action, message: message, cookies: cookies)
       self.class.from_soap(response.body[response_action])
     end
