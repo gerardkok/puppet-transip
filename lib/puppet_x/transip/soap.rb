@@ -8,7 +8,6 @@ module Transip
     ENDPOINT ||= 'api.transip.nl'.freeze
     API_SERVICE ||= 'DomainService'.freeze
     WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
-    DNSENTRY_KEYS ||= %i[name expire type content].to_set.freeze
 
     def initialize(options = {})
       key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
@@ -93,24 +92,11 @@ module Transip
       end
     end
 
-    def dnsentry?(hash)
-      DNSENTRY_KEYS == hash.keys.to_set
-    end
-
-    def type(entry)
-      case entry
-      when Hash
-        dnsentry?(entry) ? 'Transip_DnsEntry' : 'Hash'
-      else
-        entry.class.name
-      end
-    end
-    
     def array_to_soap(options)
       if options.empty?
         {}
       else
-        entry_type = type(options.first)
+        entry_type = options.first.class.name
         soaped_opts = options.map { |o| to_soap(o) }
         {
           'item' => {:content! => soaped_opts, :'@xsi:type' => "tns:#{entry_type}"},
