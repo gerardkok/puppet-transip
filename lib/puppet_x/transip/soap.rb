@@ -63,13 +63,6 @@ module Transip
       urlencode(Base64.encode64(signed_input))
     end
 
-    def signature(action, parameters = {}, time, nonce)
-      puts "parameters: #{parameters.inspect}\n"
-      serialized_input = (encode_params(parameters) + message_options(action, time, nonce)).join('&')
-      puts "serialized: #{serialized_input}\n"
-      sign(serialized_input)
-    end    
-    
     def to_cookie_array(time, nonce, signature)
       %W[ login=#{@username} mode=#{@mode} timestamp=#{time} nonce=#{nonce} clientVersion=#{API_VERSION} signature=#{signature} ]
     end
@@ -78,7 +71,8 @@ module Transip
       time = Time.new.to_i
       #strip out the -'s because transip requires the nonce to be between 6 and 32 chars
       nonce = SecureRandom.uuid.gsub("-", '')
-      signature = signature(action, options, time, nonce)
+      serialized_input = (encode_params(options) + message_options(action, time, nonce)).join('&')
+      signature = sign(serialized_input)
       to_cookie_array(time, nonce, signature).map { |c| HTTPI::Cookie.new(c) }
     end
 
