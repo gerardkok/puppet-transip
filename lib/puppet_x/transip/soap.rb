@@ -10,13 +10,18 @@ module Transip
     ENDPOINT ||= 'api.transip.nl'.freeze
     API_SERVICE ||= 'DomainService'.freeze
     WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
-    NAMESPACES ||= { 'xmlns:enc': 'http://schemas.xmlsoap.org/soap/encoding/' }.freeze
+    NAMESPACES ||= { :'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/' }.freeze
 
     class << self
-       def from_hash(hash)
-        firstkey = hash.keys.first
-        if firstkey == :item || firstkey == :return
-          from_soap(hash[firstkey])
+      def from_hash(hash)
+        if hash.keys.include?(:return)
+          from_soap(hash[:return])
+        elsif hash.keys.include?(:item)
+          if hash.keys.include?(:'@soap_enc:array_type') && hash[:'@soap_enc:array_type'].end_with?('[1]')
+            from_soap([hash[:item]]) # deal with single element array
+          else
+            from_soap(hash[:item])
+          end
         else
           hash.each_with_object({}) do |(k, v), memo|
             memo[k] = from_soap(v) unless k[0].to_s == '@'
@@ -103,9 +108,9 @@ module Transip
         else
           type = options.first.class.name.split(':').last
           soaped_options = options.map { |o| to_soap(o) }
-          { item: { content!: soaped_options, '@xsi:type': "tns:#{type}" },
-            '@xsi:type': "tns:ArrayOf#{type}",
-            '@enc:arrayType': "tns:#{type}[#{soaped_options.size}]"
+          { :item => { :content! => soaped_options, :'@xsi:type' => "tns:#{type}" },
+            :'@xsi:type' => "tns:ArrayOf#{type}",
+            :'@enc:arrayType' => "tns:#{type}[#{soaped_options.size}]"
           }
         end
       end
