@@ -5,8 +5,26 @@ class transip (
   Boolean $readwrite         = false,
   String $owner              = $::transip::params::owner,
   String $group              = $::transip::params::group,
+  Boolean $manage_gems       = true,
   Hash $dns_records          = {}
 ) inherits ::transip::params {
+  if $manage_gems {
+    if (versioncmp($facts['puppetversion'], '5.0.0') < 0) {
+      package {
+        'rack':
+          ensure   => '1.6.9',
+          provider => 'puppet_gem',
+          before   => Package['savon'];
+      }
+    }
+
+    package {
+      'savon':
+        ensure   => 'present',
+        provider => 'puppet_gem';
+    }
+  }
+
   file {
     $::transip::params::config_file:
       ensure  => 'present',

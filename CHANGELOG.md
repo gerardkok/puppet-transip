@@ -1,10 +1,18 @@
+## Release 0.3.0
+
+- now only depends on the [savon](http://savonrb.com) gem, instead of the [transip](https://github.com/joost/transip) gem (fewer dependencies is better)
+- added more rspec tests
+- added 'CAA' record type (it works, although the api doesn't list it)
+- 'ip' parameter no longer necessary (it is still necessary to whitelist your external ip address)
+- added 'readwrite' parameter, this allows for readonly or readwrite access
+
 ## Release 0.2.0
 
 - puppet 4 support (although this only affects init.pp)
 - added more rspec tests
 - bugfixes for bugs found with the above
 - added 'transip_configured' feature
-- moved everything related to [transip](https://github.com/joost/transip) to [client.rb](lib/puppet_x/transip/client.rb) (this allows running the tests without installing the gem)
+- moved everything related to [transip](https://github.com/joost/transip) to [client.rb](lib/puppet_x/transip/client.rb) (this allows for running the tests without installing the gem)
 
 ## Release 0.1.0
 
