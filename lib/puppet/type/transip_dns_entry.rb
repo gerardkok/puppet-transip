@@ -1,4 +1,4 @@
-Puppet::Type.newtype(:dns_record) do
+Puppet::Type.newtype(:transip_dns_entry) do
   @doc = 'Manage creation/deletion of DNS records.'
 
   ensurable

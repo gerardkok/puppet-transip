@@ -6,7 +6,7 @@ class transip (
   String $owner              = $::transip::params::owner,
   String $group              = $::transip::params::group,
   Boolean $manage_gems       = true,
-  Hash $dns_records          = {}
+  Hash $dns_entries          = {}
 ) inherits ::transip::params {
   if $manage_gems {
     if (versioncmp($facts['puppetversion'], '5.0.0') < 0) {
@@ -34,5 +34,5 @@ class transip (
       content => template('transip/transip.yaml.erb');
   }
 
-  create_resources(dns_record, $dns_records)
+  create_resources(transip_dns_entry, $dns_entries)
 }

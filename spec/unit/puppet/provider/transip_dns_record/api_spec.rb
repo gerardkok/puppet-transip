@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Puppet::Type.type(:dns_record).provider(:api) do
+describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
   context 'instances' do
     it 'should have an instance method' do
       expect(described_class).to respond_to(:instances)
@@ -24,7 +24,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'entryname strip domain' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'www.example.com/A',
         ttl: 3600,
@@ -40,7 +40,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'entryname with naked domain' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'example.com/MX',
         ttl: 3600,
@@ -206,7 +206,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'managed domain' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'www.example.com/A',
         ttl: 3600,
@@ -225,7 +225,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'unmanaged domain' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'www.example.eu/A',
         ttl: 3600,
@@ -247,7 +247,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'two domains' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'www.example.eu/A',
         ttl: 3600,
@@ -266,7 +266,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'add one entry' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'example.com/MX',
         ttl: 300,
@@ -305,7 +305,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'remove one entry' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :absent,
         name: 'example.com/MX',
         ttl: 300,
@@ -338,7 +338,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'change one entry' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'example.com/MX',
         ttl: 3600,
@@ -371,7 +371,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'add content' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'example.com/TXT',
         ttl: 3600,
@@ -404,7 +404,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'remove content' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'example.com/TXT',
         ttl: 3600,
@@ -437,7 +437,7 @@ describe Puppet::Type.type(:dns_record).provider(:api) do
 
   context 'chnage content' do
     let(:resource) do
-      Puppet::Type.type(:dns_record).new(
+      Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'example.com/TXT',
         ttl: 3600,

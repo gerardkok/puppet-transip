@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Puppet::Type.type(:dns_record) do
+describe Puppet::Type.type(:transip_dns_entry) do
   describe 'when validating attributes' do
     %i[name].each do |param|
       it "should have a #{param} parameter" do

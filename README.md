@@ -41,7 +41,7 @@ $ sudo /opt/puppetlabs/puppet/bin/gem install activesupport -v 4.2.7.1
 $ sudo /opt/puppetlabs/puppet/bin/gem install bundler
 $ sudo /opt/puppetlabs/puppet/bin/gem install transip
 ```
-Because the `dns_record` type does not reference this gem, it shouldn't be needed to install it for use with Puppet Server on your puppet master.
+Because the `transip_dns_entry` type does not reference this gem, it shouldn't be needed to install it for use with Puppet Server on your puppet master.
 
 ### Beginning with puppet-transip
 
@@ -56,7 +56,7 @@ class { 'transip':
 }
 ```
 
-The above configuration doesn't manage any dns records yet, but you can run ``puppet resource dns_record`` on the instance to get a list of all your TransIP dns records.
+The above configuration doesn't manage any dns records yet, but you can run ``puppet resource transip_dns_entry`` on the instance to get a list of all your TransIP dns records.
 
 ## Usage
 
@@ -65,7 +65,7 @@ Example configuration through hiera:
 transip::username: 'TransIP control panel username'
 transip::ip: 'TransIP API whitelisted ip address'
 transip::key_file: 'filename containing your TransIP private key'
-transip::dns_records:
+transip::transip_dns_entrys:
   'www.my.domain/A'
     ensure: 'present'
     ttl: '300'
@@ -78,7 +78,7 @@ transip::dns_records:
 
 ## Reference
 
-The module provides the ``dns_record`` custom type that has an ``api`` provider.
+The module provides the ``transip_dns_entry`` custom type that has an ``api`` provider.
 
 ### Parameters
 
@@ -104,12 +104,12 @@ The owner of the file containing the credentials. Default: depends on your opera
 
 The group of the file containing the credentials. Default: depends on your operating system.
 
-#### `dns_record` type
+#### `transip_dns_entry` type
 
 ##### `name`
 
 The fully qualified domain name plus the type of your record, formatted like 'fqdn/type'. If you omit '/type', type defaults to 'A'.
-The origin sign '@' can be omitted. For example, if you want to create an MX record for your domain, use 'my.domain/MX' as dns_record name.
+The origin sign '@' can be omitted. For example, if you want to create an MX record for your domain, use 'my.domain/MX' as transip_dns_entry name.
 
 ##### `fqdn`
 
@@ -117,13 +117,13 @@ The fully qualified domain name. The fqdn will be matched against your TransIP d
 
 ##### `type`
 
-The type of the record. Possible values: 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV'. Defaults to the part of the `name` after the '/', or just 'A' if `name` doesn't contain a '/'.
+The type of the record. Possible values: 'A', 'AAAA', 'CAA', 'CNAME', 'MX', 'NS', 'SRV', 'TXT'. Defaults to the part of the `name` after the '/', or just 'A' if `name` doesn't contain a '/'.
 
 ##### `content`
 
 The content of a record. This can be specified as an array, if this array has multiple entries, a record is created for each entry in your domain. For example, the puppet resource
 ```puppet
-dns_record {
+transip_dns_entry {
   'www.my.domain/A':
     ensure  => 'present',
     ttl     => '300',

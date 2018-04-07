@@ -6,7 +6,8 @@ describe 'transip', type: 'class' do
       key_file: '/etc/credentials/key_file' }
   end
   let :facts do
-    { osfamily: 'Debian' }
+    { osfamily: 'Debian',
+      puppetversion: '5.5.0' }
   end
 
   it { is_expected.to contain_file('/etc/puppetlabs/puppet/transip.yaml') }
