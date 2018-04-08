@@ -86,7 +86,7 @@ To issue Let's Encrypt certificates using the dns challenge, you can use the scr
 ```bash
 $ sudo certbot --text --agree-tos --non-interactive certonly -a manual --keep-until-expiring -d <domain> --preferred-challenges dns --manual-public-ip-logging-ok --manual-auth-hook <scripts/authenticator.sh> --manual-cleanup-hook <scripts/cleanup.sh> --expand
 ```
-Note that `aithenticator.sh` has a (lengthy) timeout to give TransIP authorized nameservers ample time to propagate the challenge.
+Note that `authenticator.sh` has a (lengthy) timeout to give TransIP authorized nameservers ample time to propagate the challenge.
 
 ## Reference
 
@@ -97,6 +97,8 @@ The module provides the ``transip_dns_entry`` custom type that has an ``api`` pr
 #### `transip` class
 
 ##### `username`
+
+The username used to access TransIP's control panel.
 
 ##### `key`
 
