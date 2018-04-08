@@ -65,7 +65,7 @@ The above configuration doesn't manage any dns records yet, but you can run ``pu
 ### Hiera
 
 Example configuration through hiera:
-~~~
+```yaml
 transip::username: 'TransIP control panel username'
 transip::key_file: 'filename containing your TransIP private key'
 transip::readwrite: true
@@ -78,7 +78,7 @@ transip::dns_entries:
     ensure: 'present'
     ttl: '86400'
     content: '10 mail.my.domain.'
-~~~
+```
 
 ### Let's Encrypt
 
