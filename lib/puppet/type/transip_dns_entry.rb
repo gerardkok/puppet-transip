@@ -1,4 +1,4 @@
-Puppet::Type.newtype(:dns_record) do
+Puppet::Type.newtype(:transip_dns_entry) do
   @doc = 'Manage creation/deletion of DNS records.'
 
   ensurable
@@ -14,7 +14,7 @@ Puppet::Type.newtype(:dns_record) do
   newproperty(:type) do
     desc 'The type of DNS record.'
 
-    newvalues(:A, :AAAA, :CNAME, :MX, :NS, :TXT, :SRV)
+    newvalues(:A, :AAAA, :CAA, :CNAME, :MX, :NS, :SRV, :TXT)
 
     munge(&:to_s)
 

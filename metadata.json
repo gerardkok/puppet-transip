@@ -1,6 +1,6 @@
 {
     "name": "gerardkok-transip",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "author": "gerardkok",
     "summary": "This module allows managing of dns records on TransIP-hosted domains.",
     "license": "MIT",
@@ -9,10 +9,11 @@
     "issues_url": "https://github.com/gerardkok/puppet-transip/issues",
     "operatingsystem_support": [{
             "operatingsystem": "Ubuntu",
-            "operatingsystemrelease": [ "16.04"
-            ]
-        }
-    ],
+            "operatingsystemrelease": [ "14.04", "16.04" ]
+        },{
+            "operatingsystem": "Darwin",
+            "operatingsystemrelease": [ "17.5.0" ]
+        }],
     "dependencies": [],
     "requirements": [{
         "name": "puppet",

@@ -1,62 +1,50 @@
 require 'yaml'
 require 'puppet'
-require 'transip' if Puppet.features.transip?
+require File.expand_path(File.join(File.dirname(__FILE__), 'soap'))
 
 module Transip
   class Client
-    def self.config_file
-      @config_file ||= File.expand_path(File.join(Puppet.settings[:confdir], 'transip.yaml'))
-    end
-
-    def self.credentials
-      @credentials ||= YAML.load_file(config_file)
-    end
-
-    def self.domainclient
-      @domainclient ||= Transip::DomainClient.new(username: credentials['username'], key_file: credentials['key_file'], ip: credentials['ip'], mode: :readwrite)
-    end
-
-    def self.domain_names
-      @domain_names ||= domainclient.request(:get_domain_names)
-    rescue Transip::ApiError
-      raise Puppet::Error, 'Unable to get domain names'
-    end
-
-    def self.to_entry(dnsentry)
-      %i[name content type expire].each_with_object({}) do |i, memo|
-        memo[i] = dnsentry[i.to_s]
+    class << self
+      def config_file
+        @config_file ||= File.expand_path(File.join(Puppet.settings[:confdir], 'transip.yaml'))
       end
-    end
 
-    def self.to_dnsentry(entry)
-      Transip::DnsEntry.new(entry[:name], entry[:expire], entry[:type], entry[:content])
-    end
-
-    def self.entries(domainname)
-      to_array(domainclient.request(:get_info, domain_name: domainname).to_hash[:domain])
-    rescue Transip::ApiError
-      raise Puppet::Error, "Unable to get entries for #{domainname}"
-    end
-
-    def self.to_array(domain)
-      domain['dnsEntries'].map { |e| to_entry(e) }
-    end
-
-    def self.all_entries
-      dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names).map(&:to_hash)
-      dnsentries.each_with_object({}) do |domain, memo|
-        d = domain[:domain]
-        memo[d['name']] = to_array(d)
+      def credentials
+        @credentials ||= YAML.load_file(config_file).each_with_object({}) { |(k, v), memo| memo[k.to_sym] = v }
       end
-    rescue Transip::ApiError
-      raise Puppet::Error, 'Unable to get entries for all domains'
-    end
 
-    def self.set_entries(domain, entries)
-      dnsentries = entries.map { |e| to_dnsentry(e) }
-      domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: dnsentries)
-    rescue Transip::ApiError
-      raise Puppet::Error, "Unable to set entries for #{domain}"
+      def domainclient
+        @domainclient ||= Transip::Soap.new(credentials)
+      rescue ArgumentError, Savon::SOAPFault => e
+        raise Puppet::Error, "Cannot connect to endpoint: '#{e.message}'"
+      end
+
+      def domain_names
+        @domain_names ||= domainclient.request(:get_domain_names)
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to get domain names: '#{e.message}'"
+      end
+
+      def entries(domainname)
+        domainclient.request(:get_info, domain_name: domainname)[:dns_entries]
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to get entries for #{domainname}: '#{e.message}'"
+      end
+
+      def all_entries
+        dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names)
+        dnsentries.each_with_object({}) do |domain, memo|
+          memo[domain[:name]] = domain[:dns_entries]       
+        end
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to get entries for all domains: '#{e.message}'"
+      end
+
+      def set_entries(domain, entries)
+        domainclient.request(:set_dns_entries, domain_name: domain, dns_entries: entries)
+      rescue Savon::SOAPFault => e
+        raise Puppet::Error, "Unable to set entries for #{domain}: '#{e.message}'"
+      end
     end
   end
 end
