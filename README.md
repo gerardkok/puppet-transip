@@ -31,16 +31,19 @@ The provider uses the TransIP [API](https://www.transip.nl/transip/api/) to hand
 * This module potentially modifies the contents of dns records from your TransIP domains. If you also manage these records from elsewhere (for example, through the control panel), then these modifications might interfere.
 
 ### Setup Requirements
-* An account to access TransIP's [control panel](https://www.transip.nl/cp/) is required, and API access needs to be enabled for this account. How to enable the API is described in https://www.transip.nl/vragen/205-hoe-schakel-transip-api-in/.
-* The [transip](https://github.com/joost/transip) ruby gem.
+* An account to access TransIP's [control panel](https://www.transip.nl/cp/).
+* API access enabled for this account. How to enable the API is described in https://www.transip.nl/vragen/205-hoe-schakel-transip-api-in/.
+* A private key needs to be generated.
+* The public ip address of the instance you run this module on needs to be whitelisted.
+* The [savon](http://savonrb.com) ruby gem.
 
-For Puppet 4, the gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. Depending on the ruby version included in the Puppet Agent, this install needs to be massaged a bit. With Puppet Agent 1.8.0 (ruby 2.1.0), this worked for me:
+For Puppet 4 and 5, the savon gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. You can do this manually as follows:
 ```bash
-$ sudo /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.5
-$ sudo /opt/puppetlabs/puppet/bin/gem install activesupport -v 4.2.7.1
-$ sudo /opt/puppetlabs/puppet/bin/gem install bundler
-$ sudo /opt/puppetlabs/puppet/bin/gem install transip
+$ sudo /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.9 # (necessary for puppet 4)
+$ sudo /opt/puppetlabs/puppet/bin/gem install savon
 ```
+Alternatively, you can set `manage_gems` to 'true', to have the module install the necessary gems for you.
+
 Because the `transip_dns_entry` type does not reference this gem, it shouldn't be needed to install it for use with Puppet Server on your puppet master.
 
 ### Beginning with puppet-transip
@@ -51,7 +54,6 @@ Minimal usage:
 ```puppet
 class { 'transip':
   username => 'TransIP control panel username',
-  ip       => 'TransIP API whitelisted ip address',
   key_file => 'filename containing your TransIP private key'
 }
 ```
@@ -60,12 +62,14 @@ The above configuration doesn't manage any dns records yet, but you can run ``pu
 
 ## Usage
 
+### Hiera
+
 Example configuration through hiera:
 ~~~
 transip::username: 'TransIP control panel username'
-transip::ip: 'TransIP API whitelisted ip address'
 transip::key_file: 'filename containing your TransIP private key'
-transip::transip_dns_entrys:
+transip::readwrite: true
+transip::dns_entries:
   'www.my.domain/A'
     ensure: 'present'
     ttl: '300'
@@ -75,6 +79,14 @@ transip::transip_dns_entrys:
     ttl: '86400'
     content: '10 mail.my.domain.'
 ~~~
+
+### Let's Encrypt
+
+To issue Let's Encrypt certificates using the dns challenge, you can use the scripts the example scripts in the `scripts` folder. `authenticator.sh` adds the challenge to your TransIP dns records, while `cleanup.sh` removes it. Example usage with `certbot`:
+```bash
+$ sudo certbot --text --agree-tos --non-interactive certonly -a manual --keep-until-expiring -d <domain> --preferred-challenges dns --manual-public-ip-logging-ok --manual-auth-hook <scripts/authenticator.sh> --manual-cleanup-hook <scripts/cleanup.sh> --expand
+```
+Note that `aithenticator.sh` has a (lengthy) timeout to give TransIP authorized nameservers ample time to propagate the challenge.
 
 ## Reference
 
@@ -86,15 +98,17 @@ The module provides the ``transip_dns_entry`` custom type that has an ``api`` pr
 
 ##### `username`
 
-The username used to access TransIP's control panel.
+##### `key`
 
-##### `ip`
-
-A public ip address whitelisted to use TransIP's API. Set this on the [API tab of the control panel](https://www.transip.nl/cp/account/api/)
+Private key to access the TransIP API. Get this from the API tab of your control panel. If you set both `key` and `key_file`, `key` will be used.
 
 ##### `key_file`
 
-Filename of the file containing your private key to access the TransIP API. Get this from the API tab of your control panel.
+Filename of the file containing your private key to access the TransIP API. Get this from the API tab of your control panel. If you set both `key` and `key_file`, `key` will be used.
+
+##### `readwrite`
+
+Boolean. If 'false', open a readonly connection, if 'true', open a readwrite connection. Will throw an error if you attempt to modify records over a readonly connection. Default 'false' (i.e. readonly).
 
 ##### `owner`
 
@@ -103,6 +117,14 @@ The owner of the file containing the credentials. Default: depends on your opera
 ##### `group`
 
 The group of the file containing the credentials. Default: depends on your operating system.
+
+##### `manage_gems`
+
+Boolean. If 'false', don't install the necessary gems, if 'true', do install the necessary gems. Default 'true'.
+
+##### `dns_entries`
+
+A hash of dns entry resources that the module will create.
 
 #### `transip_dns_entry` type
 
@@ -140,10 +162,10 @@ The TTL field of a dns record. Defaults to 3600 seconds.
 
 ## Limitations
 
-Currently tested on Ubuntu 16.04 only, with a very limited number of domains and dns records.
+Currently tested with a very limited number of domains and dns records.
 
 The locations of the credentials file is currently fixed to `transip.yaml` in the [Puppet confdir](https://docs.puppet.com/puppet/latest/dirs_confdir.html).
 
 ## Development
 
-Run `rake spec` to run all tests. The [transip](https://github.com/joost/transip) gem is not required to run the tests.
+Run `rake spec` to run all tests. The [savon](http://savonrb.com) gem is not required to run the tests.

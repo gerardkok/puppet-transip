@@ -8,6 +8,7 @@
 - added 'manage_gems' parameter, indicating if you want puppet to install the necessary gems
 - you can now pass either a private key directly or a name of a file containing your private key
 - renamed 'dns_record' to 'transip_dns_entry'
+- added Let's Encrypt example scripts
 
 ## Release 0.2.0
 
