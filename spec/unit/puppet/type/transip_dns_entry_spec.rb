@@ -2,112 +2,112 @@ require 'spec_helper'
 
 describe Puppet::Type.type(:transip_dns_entry) do
   describe 'when validating attributes' do
-    %i[name].each do |param|
-      it "should have a #{param} parameter" do
+    [:name].each do |param|
+      it "has a #{param} parameter" do
         expect(described_class.attrtype(param)).to eq(:param)
       end
     end
-    %i[ensure fqdn type content ttl].each do |prop|
-      it "should have a #{prop} property" do
+    [:ensure, :fqdn, :type, :content, :ttl].each do |prop|
+      it "has a #{prop} property" do
         expect(described_class.attrtype(prop)).to eq(:property)
       end
     end
   end
 
   describe 'ensure' do
-    %i[present absent].each do |value|
-      it "should support #{value} as a value to ensure" do
-        expect do
+    [:present, :absent].each do |value|
+      it "supports #{value} as a value to ensure" do
+        expect {
           described_class.new(
             name: 'host.example.com/A',
-            ensure: value
+            ensure: value,
           )
-        end.to_not raise_error
+        }.not_to raise_error
       end
     end
 
-    it 'should not support other values' do
-      expect do
+    it 'does not support other values' do
+      expect {
         described_class.new(
           name: 'host.example.com/A',
-          ensure: 'foo'
+          ensure: 'foo',
         )
-      end.to raise_error(Puppet::Error, /Invalid value/)
+      }.to raise_error(Puppet::Error, %r{Invalid value})
     end
   end
 
   describe 'title patterns' do
-    it 'should recognise the part before the slash as fqdn' do
+    it 'recognises the part before the slash as fqdn' do
       expect(
-        described_class.new(name: 'host.example.com/A')[:fqdn]
+        described_class.new(name: 'host.example.com/A')[:fqdn],
       ).to eq('host.example.com')
     end
 
-    it 'should recognise the part after the slash as type' do
+    it 'recognises the part after the slash as type' do
       expect(
-        described_class.new(name: 'host.example.com/A')[:type]
+        described_class.new(name: 'host.example.com/A')[:type],
       ).to eq('A')
     end
   end
 
   describe 'content' do
-    it 'should not allow an ampty string as content' do
-      expect do
+    it 'does not allow an empty string as content' do
+      expect {
         described_class.new(
           name: 'host.example.com/A',
-          content: ''
+          content: '',
         )
-      end.to raise_error(Puppet::Error, /An empty record is not allowed/)
+      }.to raise_error(Puppet::Error, %r{An empty record is not allowed})
     end
 
-    it 'should not allow an ampty array as content' do
-      expect do
+    it 'does not allow an empty array as content' do
+      expect {
         described_class.new(
           name: 'host.example.com/A',
-          content: []
+          content: [],
         )
-      end.to raise_error(Puppet::Error, /The content of the record must not be blank/)
+      }.to raise_error(Puppet::Error, %r{The content of the record must not be blank})
     end
 
-    it 'should allow a CNAME record with one content entry' do
-      expect do
+    it 'allows a CNAME record with one content entry' do
+      expect {
         described_class.new(
           name: 'host.example.com/A',
-          content: 'record1'
+          content: 'record1',
         )
-      end.to_not raise_error
+      }.not_to raise_error
     end
 
-    it 'should not allow a CNAME record with multiple content entries' do
-      expect do
+    it 'does not allow a CNAME record with multiple content entries' do
+      expect {
         described_class.new(
           name: 'host.example.com/CNAME',
-          content: %w[record1 record2]
+          content: %w[record1 record2],
         )
-      end.to raise_error(Puppet::Error, /The content of a CNAME record cannot have multiple entries/)
+      }.to raise_error(Puppet::Error, %r{The content of a CNAME record cannot have multiple entries})
     end
 
-    it 'should allow an A record with multiple content entries' do
-      expect do
+    it 'allows an A record with multiple content entries' do
+      expect {
         described_class.new(
           name: 'host.example.com/A',
-          content: %w[record1 record2]
+          content: %w[record1 record2],
         )
-      end.to_not raise_error
+      }.not_to raise_error
     end
   end
 
   describe 'ttl' do
-    it 'should only allow integers' do
-      expect do
+    it 'only allows integers' do
+      expect {
         described_class.new(
           name: 'host.example.com/A',
-          ttl: 'foo'
+          ttl: 'foo',
         )
-      end.to raise_error(Puppet::Error, /TTL must be an integer/)
+      }.to raise_error(Puppet::Error, %r{TTL must be an integer})
     end
 
-    it 'should munge strings to integers' do
+    it 'munges strings to integers' do
       expect(described_class.new(name: 'host.example.com/A', ttl: '600')[:ttl]).to eq(600)
     end
   end

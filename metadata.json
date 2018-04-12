@@ -1,22 +1,37 @@
 {
-    "name": "gerardkok-transip",
-    "version": "0.3.0",
-    "author": "gerardkok",
-    "summary": "This module allows managing of dns records on TransIP-hosted domains.",
-    "license": "MIT",
-    "source": "https://github.com/gerardkok/puppet-transip.git",
-    "project_page": "https://github.com/gerardkok/puppet-transip",
-    "issues_url": "https://github.com/gerardkok/puppet-transip/issues",
-    "operatingsystem_support": [{
-            "operatingsystem": "Ubuntu",
-            "operatingsystemrelease": [ "14.04", "16.04" ]
-        },{
-            "operatingsystem": "Darwin",
-            "operatingsystemrelease": [ "17.5.0" ]
-        }],
-    "dependencies": [],
-    "requirements": [{
-        "name": "puppet",
-        "version_requirement": ">= 4.0.0 < 6.0.0"
-    }]
+  "name": "gerardkok-transip",
+  "version": "0.3.0",
+  "author": "gerardkok",
+  "summary": "This module allows managing of dns records on TransIP-hosted domains.",
+  "license": "MIT",
+  "source": "https://github.com/gerardkok/puppet-transip.git",
+  "project_page": "https://github.com/gerardkok/puppet-transip",
+  "issues_url": "https://github.com/gerardkok/puppet-transip/issues",
+  "dependencies": [
+
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "14.04",
+        "16.04"
+      ]
+    },
+    {
+      "operatingsystem": "Darwin",
+      "operatingsystemrelease": [
+        "17.5.0"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 4.0.0 < 6.0.0"
+    }
+  ],
+  "pdk-version": "1.4.1",
+  "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
+  "template-ref": "1.4.1-0-g52adbbb"
 }

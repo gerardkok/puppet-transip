@@ -34,7 +34,7 @@ module Transip
       def all_entries
         dnsentries = domainclient.request(:batch_get_info, domain_names: domain_names)
         dnsentries.each_with_object({}) do |domain, memo|
-          memo[domain[:name]] = domain[:dns_entries]       
+          memo[domain[:name]] = domain[:dns_entries]
         end
       rescue Savon::SOAPFault => e
         raise Puppet::Error, "Unable to get entries for all domains: '#{e.message}'"

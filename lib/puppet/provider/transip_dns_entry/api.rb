@@ -1,7 +1,7 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'transip', 'client.rb'))
 
 Puppet::Type.type(:transip_dns_entry).provide(:api) do
-  confine feature: %i[savon transip_configured]
+  confine feature: [:savon, :transip_configured]
 
   mk_resource_methods
   def self.instances
@@ -12,7 +12,7 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
 
   def self.prefetch(resources)
     instances.each do |prov|
-      if resource = resources[prov.name]
+      if (resource = resources[prov.name])
         resource.provider = prov
       end
     end
@@ -31,7 +31,7 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
   end
 
   def entryname(fqdn, domain)
-    fqdn == domain ? '@' : fqdn.chomp(domain).chomp('.')
+    (fqdn == domain) ? '@' : fqdn.chomp(domain).chomp('.')
   end
 
   def flush
@@ -48,7 +48,7 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
 
   def domain
     @domain ||= begin
-      domains_re = /^.*(#{domain_names.join('|').gsub('.', '\.')})$/
+      domains_re = %r{^.*(#{domain_names.join('|').gsub('.', '\.')})$}
       m = domains_re.match(@resource[:fqdn])
       raise Puppet::Error, "cannot find domain matching #{@resource[:name]}" if m.nil?
       m[1]
@@ -72,7 +72,7 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
   end
 
   def self.fqdn(entryname, domain)
-    entryname == '@' ? domain : "#{entryname}.#{domain}"
+    (entryname == '@') ? domain : "#{entryname}.#{domain}"
   end
 
   def self.to_instance(entry, domain)
@@ -85,13 +85,13 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
   def self.collapsed_content(entries, domain)
     entries.each { |e| to_instance(e, domain) }.group_by { |h| h[:name] }.map do |_, v|
       v.each_with_object({}) do |e, memo|
-        e.each_key { |k| k == :content ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
+        e.each_key { |k| (k == :content) ? (memo[k] ||= []) << e[k] : memo[k] ||= e[k] }
       end
     end
   end
 
   def self.collapsed_instances
-    all_entries.inject([]) do |memo, (domain, entries)|
+    all_entries.reduce([]) do |memo, (domain, entries)|
       memo + collapsed_content(entries, domain)
     end
   end

@@ -43,7 +43,7 @@ module Transip
           end
         end
       end
-      
+
       def to_soap(options)
         case options
         when Array
@@ -54,7 +54,7 @@ module Transip
           options
         end
       end
-  
+
       def array_to_soap(options)
         if options.empty?
           {}
@@ -63,11 +63,10 @@ module Transip
           soaped_options = options.map { |o| to_soap(o) }
           { :item => { :content! => soaped_options, :'@xsi:type' => "tns:#{type}" },
             :'@xsi:type' => "tns:ArrayOf#{type}",
-            :'@enc:arrayType' => "tns:#{type}[#{soaped_options.size}]"
-          }
+            :'@enc:arrayType' => "tns:#{type}[#{soaped_options.size}]" }
         end
       end
-  
+
       def hash_to_soap(options)
         options.each_with_object({}) do |(k, v), memo|
           memo[k] = to_soap(v)
@@ -76,24 +75,24 @@ module Transip
 
       def camelize(word)
         parts = word.to_s.split('_')
-        parts.first.downcase + parts[1..-1].map{ |p| p.capitalize }.join
+        parts.first.downcase + parts[1..-1].map(&:capitalize).join
       end
-  
+
       def array_to_indexed_hash(array)
         Hash[(0...array.size).zip(array)]
       end
-      
+
       def urlencode(input)
         URI.encode_www_form_component(input.to_s).gsub('+', '%20').gsub('%7E', '~').gsub('*', '%2A')
       end
-  
+
       def encode(params, prefix = nil)
         case params
         when Hash
-          params.map do |key, value|
+          params.map { |key, value|
             encoded_key = prefix.nil? ? urlencode(key) : "#{prefix}[#{urlencode(key)}]"
             encode(value, encoded_key)
-          end.flatten
+          }.flatten
         when Array
           h = array_to_indexed_hash(params)
           encode(h, prefix)
@@ -101,42 +100,42 @@ module Transip
           ["#{prefix}=#{urlencode(params)}"]
         end
       end
-  
+
       def message_options(method, api_service, hostname, time, nonce)
-        %W[ __method=#{camelize(method)} __service=#{api_service} __hostname=#{hostname} __timestamp=#{time} __nonce=#{nonce} ]
+        %W[__method=#{camelize(method)} __service=#{api_service} __hostname=#{hostname} __timestamp=#{time} __nonce=#{nonce}]
       end
 
       def serialize(action, api_service, hostname, time, nonce, options = {})
         (encode(options.values) + message_options(action, api_service, hostname, time, nonce)).join('&')
       end
-  
+
       def sign(input, private_key)
         digest = OpenSSL::Digest::SHA512.new
         signed_input = private_key.sign(digest, input)
         urlencode(Base64.encode64(signed_input))
       end
-  
+
       def to_cookie_array(username, mode, time, nonce, api_version, signature)
-        %W[ login=#{username} mode=#{mode} timestamp=#{time} nonce=#{nonce} clientVersion=#{api_version} signature=#{signature} ]
+        %W[login=#{username} mode=#{mode} timestamp=#{time} nonce=#{nonce} clientVersion=#{api_version} signature=#{signature}]
       end
-  
+
       def cookies(action, username, mode, api_service, api_version, hostname, private_key, options = {})
         time = Time.new.to_i
         # strip out the -'s because transip requires the nonce to be between 6 and 32 chars
-        nonce = SecureRandom.uuid.gsub("-", '')
+        nonce = SecureRandom.uuid.delete('-')
         serialized_input = serialize(action, api_service, hostname, time, nonce, options)
         signature = sign(serialized_input, private_key)
         to_cookie_array(username, mode, time, nonce, api_version, signature).map { |c| HTTPI::Cookie.new(c) }
       end
     end
-  
+
     def initialize(options = {})
       key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
-      raise ArgumentError, 'Invalid RSA key' unless key =~ /-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----/sim
+      raise ArgumentError, 'Invalid RSA key' unless key =~ %r{-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----}sim
       @private_key = OpenSSL::PKey::RSA.new(key)
 
       @username = options[:username]
-      raise ArgumentError, 'The :username and :key options are required' if @username.nil? or key.nil?
+      raise ArgumentError, 'The :username and :key options are required' if @username.nil? || key.nil?
 
       @mode = options[:mode] || :readonly
 
