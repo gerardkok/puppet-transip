@@ -274,6 +274,26 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     end
   end
 
+  context 'domain and subdomain' do
+    let(:resource) do
+      Puppet::Type.type(:transip_dns_entry).new(
+        ensure: :present,
+        name: 'www.sub.example.com/A',
+        ttl: 3600,
+        content: ['192.0.2.1'],
+        provider: described_class.name,
+      )
+    end
+    let(:provider) { resource.provider }
+
+    before(:each) do
+      provider.expects(:domain_names).returns ['example.com', 'sub.example.com']
+    end
+    it 'matches domain' do
+      expect(provider.domain).to eq('sub.example.com')
+    end
+  end
+
   context 'add one entry' do
     let(:resource) do
       Puppet::Type.type(:transip_dns_entry).new(

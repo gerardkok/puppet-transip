@@ -48,7 +48,7 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
 
   def domain
     @domain ||= begin
-      domains_re = %r{^.*(#{domain_names.join('|').gsub('.', '\.')})$}
+      domains_re = %r{^.*?(#{domain_names.join('|').gsub('.', '\.')})$}
       m = domains_re.match(@resource[:fqdn])
       raise Puppet::Error, "cannot find domain matching #{@resource[:name]}" if m.nil?
       m[1]
