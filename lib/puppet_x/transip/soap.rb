@@ -6,6 +6,8 @@ require 'savon' if Puppet.features.savon?
 
 module Transip
   refine Array do
+    SOAP_ARRAY_KEYS ||= [:item, :'@soap_enc:array_type', :'@xsi:type'].to_set.freeze
+
     def to_soap
       if empty?
         {}
@@ -21,10 +23,6 @@ module Transip
     def from_soap
       map { |x| x.from_soap }
     end
-
-    def soap_array?
-      to_set == [:item, :'@soap_enc:array_type', :'@xsi:type'].to_set
-    end
   end
 
   refine Hash do
@@ -35,7 +33,7 @@ module Transip
     end
 
     def single_element_soap_array?
-      keys.soap_array? && self[:'@soap_enc:array_type'].end_with?('[1]')
+      keys.to_set == SOAP_ARRAY_KEYS && self[:'@soap_enc:array_type'].end_with?('[1]')
     end
 
     def strip_soap_keys
