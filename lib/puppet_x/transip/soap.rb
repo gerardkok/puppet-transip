@@ -40,7 +40,7 @@ module Transip
 
     def strip_soap_keys
       if single_element_soap_array?
-        { item: [self[:item]] } # deal with single element arrays
+        { item: [self[:item]] } # turn single element array into proper array
       else
         each_with_object({}) do |(k, v), memo|
           memo[k] = v unless k[0].to_s == '@'
