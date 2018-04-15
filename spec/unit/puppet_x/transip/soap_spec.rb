@@ -1,23 +1,25 @@
 require 'spec_helper'
 
 describe Transip::Soap do
+  using Transip
+
   context 'camelize' do
     it 'camelizes' do
       expect(described_class.camelize(:get_domain_names)).to eq('getDomainNames')
     end
   end
 
-  context 'array_to_indexed_hash' do
+  context 'to_indexed_hash' do
     it 'indexes empty array' do
-      expect(described_class.array_to_indexed_hash([])).to eq({})
+      expect(described_class.to_indexed_hash([])).to eq({})
     end
 
     it 'indexes single element array' do
-      expect(described_class.array_to_indexed_hash(['a'])).to eq(0 => 'a')
+      expect(described_class.to_indexed_hash(['a'])).to eq(0 => 'a')
     end
 
     it 'indexes multi element array' do
-      expect(described_class.array_to_indexed_hash(%w[a b c])).to eq(0 => 'a', 1 => 'b', 2 => 'c')
+      expect(described_class.to_indexed_hash(%w[a b c])).to eq(0 => 'a', 1 => 'b', 2 => 'c')
     end
   end
 
@@ -59,7 +61,7 @@ describe Transip::Soap do
     end
 
     it 'converts array to soap' do
-      expect(described_class.to_soap(%w[a b])).to eq(output)
+      expect(%w[a b].to_soap).to eq(output)
     end
   end
 
@@ -71,7 +73,7 @@ describe Transip::Soap do
     end
 
     it 'converts single element array' do
-      expect(described_class.from_soap(input)).to eq([{ value: 'a' }])
+      expect(input.from_soap).to eq([{ value: 'a' }])
     end
   end
 
@@ -86,7 +88,7 @@ describe Transip::Soap do
     end
 
     it 'converts single element array' do
-      expect(described_class.from_soap(input)).to eq([{ value: 'a' }, { value: 'b' }])
+      expect(input.from_soap).to eq([{ value: 'a' }, { value: 'b' }])
     end
   end
 end

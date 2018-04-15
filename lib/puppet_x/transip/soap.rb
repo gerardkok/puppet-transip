@@ -5,6 +5,58 @@ require 'securerandom'
 require 'savon' if Puppet.features.savon?
 
 module Transip
+  refine Array do
+    def to_soap
+      if empty?
+        {}
+      else
+        type = first.class.name.split(':').last
+        soaped_options = map { |o| o.to_soap }
+        { :item => { :content! => soaped_options, :'@xsi:type' => "tns:#{type}" },
+          :'@xsi:type' => "tns:ArrayOf#{type}",
+          :'@enc:arrayType' => "tns:#{type}[#{soaped_options.size}]" }
+      end
+    end
+
+    def from_soap
+      map { |x| x.from_soap }
+    end
+  end
+
+  refine Hash do
+    def to_soap
+      each_with_object({}) do |(k, v), memo|
+        memo[k] = v.to_soap
+      end
+    end
+
+    def from_soap
+      if keys.include?(:return)
+        self[:return].from_soap
+      elsif keys.include?(:item)
+        if keys.include?(:'@soap_enc:array_type') && self[:'@soap_enc:array_type'].end_with?('[1]')
+          [self[:item].from_soap] # deal with single element array
+        else
+          self[:item].from_soap
+        end
+      else
+        each_with_object({}) do |(k, v), memo|
+          memo[k] = v.from_soap unless k[0].to_s == '@'
+        end
+      end
+    end
+  end
+
+  refine Object do
+    def to_soap
+      to_s
+    end
+
+    def from_soap
+      to_s
+    end
+  end
+
   class Soap
     API_VERSION ||= '5.6'.freeze
     ENDPOINT ||= 'api.transip.nl'.freeze
@@ -13,72 +65,12 @@ module Transip
     NAMESPACES ||= { :'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/' }.freeze
 
     class << self
-      def from_soap(input)
-        case input
-        when Array
-          array_from_soap(input)
-        when Hash
-          hash_from_soap(input)
-        else
-          input
-        end
-      end
-
-      def array_from_soap(input)
-        input.map { |value| from_soap(value) }
-      end
-
-      def hash_from_soap(hash)
-        if hash.keys.include?(:return)
-          from_soap(hash[:return])
-        elsif hash.keys.include?(:item)
-          if hash.keys.include?(:'@soap_enc:array_type') && hash[:'@soap_enc:array_type'].end_with?('[1]')
-            from_soap([hash[:item]]) # deal with single element array
-          else
-            from_soap(hash[:item])
-          end
-        else
-          hash.each_with_object({}) do |(k, v), memo|
-            memo[k] = from_soap(v) unless k[0].to_s == '@'
-          end
-        end
-      end
-
-      def to_soap(options)
-        case options
-        when Array
-          array_to_soap(options)
-        when Hash
-          hash_to_soap(options)
-        else
-          options
-        end
-      end
-
-      def array_to_soap(options)
-        if options.empty?
-          {}
-        else
-          type = options.first.class.name.split(':').last
-          soaped_options = options.map { |o| to_soap(o) }
-          { :item => { :content! => soaped_options, :'@xsi:type' => "tns:#{type}" },
-            :'@xsi:type' => "tns:ArrayOf#{type}",
-            :'@enc:arrayType' => "tns:#{type}[#{soaped_options.size}]" }
-        end
-      end
-
-      def hash_to_soap(options)
-        options.each_with_object({}) do |(k, v), memo|
-          memo[k] = to_soap(v)
-        end
-      end
-
       def camelize(word)
         parts = word.to_s.split('_')
         parts.first.downcase + parts[1..-1].map(&:capitalize).join
       end
 
-      def array_to_indexed_hash(array)
+      def to_indexed_hash(array)
         Hash[(0...array.size).zip(array)]
       end
 
@@ -94,7 +86,7 @@ module Transip
             encode(value, encoded_key)
           }.flatten
         when Array
-          h = array_to_indexed_hash(params)
+          h = to_indexed_hash(params)
           encode(h, prefix)
         else
           ["#{prefix}=#{urlencode(params)}"]
@@ -131,7 +123,7 @@ module Transip
 
     def initialize(options = {})
       key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
-      raise ArgumentError, 'Invalid RSA key' unless key =~ %r{-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----}sim
+      raise ArgumentError, 'Invalid RSA key' unless key =~ %r{-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----}sm
       @private_key = OpenSSL::PKey::RSA.new(key)
 
       @username = options[:username]
@@ -144,10 +136,10 @@ module Transip
 
     def request(action, options = {})
       response_action = "#{action}_response".to_sym
-      message = self.class.to_soap(options)
+      message = options.to_soap
       cookies = self.class.cookies(action, @username, @mode, API_SERVICE, API_VERSION, ENDPOINT, @private_key, options)
       response = @client.call(action, message: message, cookies: cookies)
-      self.class.from_soap(response.body[response_action])
+      response.body[response_action].from_soap
     end
   end
 end
