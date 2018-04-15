@@ -29,8 +29,8 @@ Style/BlockDelimiters:
     be consistent then.
   EnforcedStyle: braces_for_chaining
 Style/ClassAndModuleChildren:
-  Description: Nested style, because compact style doesn't work with rspec.
-  EnforcedStyle: nested
+  Description: Compact style reduces the required amount of indentation.
+  EnforcedStyle: compact
 Style/EmptyElse:
   Description: Enforce against empty else clauses, but allow `nil` for clarity.
   EnforcedStyle: empty
