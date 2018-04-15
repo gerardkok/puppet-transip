@@ -57,12 +57,8 @@ module Transip
   end
 
   refine Object do
-    def to_soap
-      to_s
-    end
-
-    def from_soap
-      to_s
+    [:to_soap, :from_soap].each do |m|
+      define_method(m) { to_s }
     end
   end
 

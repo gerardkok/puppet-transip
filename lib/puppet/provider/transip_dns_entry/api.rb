@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'transip', 'client.rb'))
+require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'transip', 'client'))
 
 Puppet::Type.type(:transip_dns_entry).provide(:api) do
   confine feature: [:savon, :transip_configured]
