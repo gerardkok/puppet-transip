@@ -21,6 +21,10 @@ module Transip
     def from_soap
       map { |x| x.from_soap }
     end
+
+    def soap_array?
+      to_set == [:item, :'@soap_enc:array_type', :'@xsi:type'].to_set
+    end
   end
 
   refine Hash do
@@ -30,20 +34,25 @@ module Transip
       end
     end
 
-    def from_soap
-      if keys.include?(:return)
-        self[:return].from_soap
-      elsif keys.include?(:item)
-        if keys.include?(:'@soap_enc:array_type') && self[:'@soap_enc:array_type'].end_with?('[1]')
-          [self[:item].from_soap] # deal with single element array
-        else
-          self[:item].from_soap
-        end
+    def single_element_soap_array?
+      keys.soap_array? && self[:'@soap_enc:array_type'].end_with?('[1]')
+    end
+
+    def strip_soap_keys
+      if single_element_soap_array?
+        { item: [self[:item]] } # deal with single element arrays
       else
         each_with_object({}) do |(k, v), memo|
-          memo[k] = v.from_soap unless k[0].to_s == '@'
+          memo[k] = v unless k[0].to_s == '@'
         end
       end
+    end
+
+    def from_soap
+      h = strip_soap_keys.each_with_object({}) do |(k, v), memo|
+        memo[k] = v.from_soap
+      end
+      (h.keys == [:item] || h.keys == [:return]) ? h[keys.first] : h
     end
   end
 
