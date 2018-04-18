@@ -5,9 +5,9 @@ require 'securerandom'
 require 'savon' if Puppet.features.savon?
 
 module Transip
-  refine Array do
-    SOAP_ARRAY_KEYS ||= [:item, :'@soap_enc:array_type', :'@xsi:type'].to_set.freeze
+  SOAP_ARRAY_KEYS ||= [:item, :'@soap_enc:array_type', :'@xsi:type'].to_set.freeze
 
+  refine Array do
     def to_soap
       if empty?
         {}
