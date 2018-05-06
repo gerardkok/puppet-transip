@@ -1,3 +1,9 @@
+## Release 0.3.1
+
+- converted to PDK
+- simplified the 'from_soap' and 'to_soap' methods in the Transip module
+- fixed a (theoretical) error in retrieval of TransIP managed domains
+
 ## Release 0.3.0
 
 - now only depends on the [savon](http://savonrb.com) gem, instead of the [transip](https://github.com/joost/transip) gem (fewer dependencies is better)

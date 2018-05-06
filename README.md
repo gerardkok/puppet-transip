@@ -39,12 +39,12 @@ The provider uses the TransIP [API](https://www.transip.nl/transip/api/) to hand
 
 For Puppet 4 and 5, the savon gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. You can do this manually as follows:
 ```bash
-$ sudo /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.9 # (necessary for puppet 4)
+$ sudo /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.9 # for puppet 4
 $ sudo /opt/puppetlabs/puppet/bin/gem install savon
 ```
 Alternatively, you can set `manage_gems` to 'true', to have the module install the necessary gems for you.
 
-Because the `transip_dns_entry` type does not reference this gem, it shouldn't be needed to install it for use with Puppet Server on your puppet master.
+Because the `transip_dns_entry` type does not reference the savon gem, it shouldn't be needed to install it for use with Puppet Server on your puppet master.
 
 ### Beginning with puppet-transip
 
@@ -52,9 +52,10 @@ This module should be enabled on one of your instances that is allowed to access
 
 Minimal usage:
 ```puppet
-class { 'transip':
-  username => 'TransIP control panel username',
-  key_file => 'filename containing your TransIP private key'
+class {
+  'transip':
+    username => 'TransIP control panel username',
+    key_file => 'filename containing your TransIP private key'
 }
 ```
 
@@ -86,7 +87,7 @@ To issue Let's Encrypt certificates using the dns challenge, you can use the scr
 ```bash
 $ sudo certbot --text --agree-tos --non-interactive certonly -a manual --keep-until-expiring -d <domain> --preferred-challenges dns --manual-public-ip-logging-ok --manual-auth-hook <scripts/authenticator.sh> --manual-cleanup-hook <scripts/cleanup.sh> --expand
 ```
-Note that `authenticator.sh` has a (lengthy) timeout to give TransIP authorized nameservers ample time to propagate the challenge.
+Note that `authenticator.sh` has a (lengthy) timeout to give TransIP's authorized nameservers ample time to propagate the challenge.
 
 ## Reference
 

@@ -1,6 +1,6 @@
 {
   "name": "gerardkok-transip",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "gerardkok",
   "summary": "This module allows managing of dns records on TransIP-hosted domains.",
   "license": "MIT",
