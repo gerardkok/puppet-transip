@@ -49,7 +49,7 @@ Puppet::Type.newtype(:transip_dns_entry) do
   def self.title_patterns
     [
       [%r{^(([^/]*)/(.*))$}, [[:name], [:fqdn], [:type]]],
-      [/^((.*))$/, [[:name], [:fqdn]]]
+      [%r{^((.*))$}, [[:name], [:fqdn]]],
     ]
   end
 
