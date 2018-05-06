@@ -83,7 +83,7 @@ transip::dns_entries:
 
 ### Let's Encrypt
 
-To issue Let's Encrypt certificates using the dns challenge, you can use the scripts the example scripts in the `scripts` folder. `authenticator.sh` adds the challenge to your TransIP dns records, while `cleanup.sh` removes it. Example usage with `certbot`:
+To issue Let's Encrypt certificates using the dns challenge, you can use the example scripts in the `scripts` folder. `authenticator.sh` adds the challenge to your TransIP dns records, while `cleanup.sh` removes it. Example usage with `certbot`:
 ```bash
 $ sudo certbot --text --agree-tos --non-interactive certonly -a manual --keep-until-expiring -d <domain> --preferred-challenges dns --manual-public-ip-logging-ok --manual-auth-hook <scripts/authenticator.sh> --manual-cleanup-hook <scripts/cleanup.sh> --expand
 ```
