@@ -1,3 +1,9 @@
+## Release 0.3.2
+
+- PDK to 1.10.0
+- fixed rspec tests
+- ruby refinements fix
+
 ## Release 0.3.1
 
 - converted to PDK
