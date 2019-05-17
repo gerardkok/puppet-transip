@@ -2,6 +2,7 @@ require 'uri'
 require 'openssl'
 require 'time'
 require 'securerandom'
+require 'set'
 require 'savon' if Puppet.features.savon?
 
 module Transip
@@ -66,6 +67,8 @@ module Transip
     API_SERVICE ||= 'DomainService'.freeze
     WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
     NAMESPACES ||= { :'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/' }.freeze
+
+    using Transip
 
     class << self
       def camelize(word)

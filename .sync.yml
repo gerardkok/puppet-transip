@@ -1,0 +1,12 @@
+---
+.travis.yml:
+  delete: true
+
+appveyor.yml:
+  delete: true
+
+.gitlab-ci.yml:
+  unmanaged: true
+
+spec/spec_helper.rb:
+  mock_with: ':rspec'
