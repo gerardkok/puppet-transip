@@ -38,7 +38,7 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
     entryname = entryname(@resource[:fqdn], domain)
     entries = entries(domain).reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
     unless @property_hash[:ensure] == :absent
-      @resource[:content].to_set.map do |c|
+      @resource[:content].to_set.each do |c|
         entries << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
       end
     end
