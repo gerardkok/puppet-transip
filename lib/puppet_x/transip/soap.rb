@@ -88,7 +88,7 @@ module Transip
         case params
         when Hash
           params.map { |key, value|
-            encoded_key = prefix.nil? ? urlencode(key) : "#{prefix}[#{urlencode(key)}]"
+            encoded_key = prefix ? "#{prefix}[#{urlencode(key)}]" : urlencode(key)
             encode(value, encoded_key)
           }.flatten
         when Array
@@ -133,7 +133,7 @@ module Transip
       @private_key = OpenSSL::PKey::RSA.new(key)
 
       @username = options[:username]
-      raise ArgumentError, 'The :username and :key options are required' if @username.nil? || key.nil?
+      raise ArgumentError, 'The :username and :key options are required' unless @username && key
 
       @mode = options[:mode] || :readonly
 
