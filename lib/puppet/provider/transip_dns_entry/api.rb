@@ -37,14 +37,14 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
   def flush
     entryname = entryname(@resource[:fqdn], domain)
     existing_entries = entries(domain)
-    content = content_of_entry(existing_entries, entryname)
-    entries = existing_entries.reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
+    entries_to_keep = existing_entries.reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
     unless @property_hash[:ensure] == :absent
+      content = content_of_entry(existing_entries, entryname)
       content.each do |c|
-        entries << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
+        entries_to_keep << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
       end
     end
-    set_entries(domain, entries)
+    set_entries(domain, entries_to_keep)
     @property_hash = @resource.to_hash
   end
 
