@@ -30,8 +30,20 @@ Puppet::Type.newtype(:transip_dns_entry) do
     end
 
     def insync?(is)
+      return should.to_set.subset?(is.to_set) if @resource[:content_handling] == 'minimum'
+
       is.to_set == should.to_set
     end
+  end
+
+  newparam(:content_handling) do
+    desc 'How content should be handled.'
+
+    newvalues(:minimum, :inclusive)
+
+    munge(&:to_s)
+
+    defaultto :inclusive
   end
 
   newproperty(:ttl) do

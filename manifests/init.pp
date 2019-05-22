@@ -9,15 +9,6 @@ class transip (
   Hash $dns_entries          = {}
 ) inherits ::transip::params {
   if $manage_gems {
-    if (versioncmp($facts['puppetversion'], '5.0.0') < 0) {
-      package {
-        'rack':
-          ensure   => '1.6.9',
-          provider => 'puppet_gem',
-          before   => Package['savon'];
-      }
-    }
-
     package {
       'savon':
         ensure   => 'present',

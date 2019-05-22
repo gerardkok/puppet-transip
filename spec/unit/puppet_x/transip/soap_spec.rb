@@ -19,17 +19,17 @@ describe Transip::Soap do
     end
 
     it 'indexes multi element array' do
-      expect(described_class.to_indexed_hash(%w[a b c])).to eq(0 => 'a', 1 => 'b', 2 => 'c')
+      expect(described_class.to_indexed_hash(['a', 'b', 'c'])).to eq(0 => 'a', 1 => 'b', 2 => 'c')
     end
   end
 
   context 'encode' do
     it 'encodes array' do
-      expect(described_class.encode(%w[a b])).to eq(['0=a', '1=b'])
+      expect(described_class.encode(['a', 'b'])).to eq(['0=a', '1=b'])
     end
 
     it 'encodes array of array' do
-      expect(described_class.encode([%w[a b]])).to eq(['0[0]=a', '0[1]=b'])
+      expect(described_class.encode([['a', 'b']])).to eq(['0[0]=a', '0[1]=b'])
     end
 
     it 'encodes hash' do
@@ -55,21 +55,21 @@ describe Transip::Soap do
 
   context 'to_soap' do
     let(:output) do
-      { :item => { :content! => %w[a b], :'@xsi:type' => 'tns:String' },
-        :'@xsi:type' => 'tns:ArrayOfString',
-        :'@enc:arrayType' => 'tns:String[2]' }
+      { item: { content!: ['a', 'b'], '@xsi:type': 'tns:String' },
+        '@xsi:type': 'tns:ArrayOfString',
+        '@enc:arrayType': 'tns:String[2]' }
     end
 
     it 'converts array to soap' do
-      expect(%w[a b].to_soap).to eq(output)
+      expect(['a', 'b'].to_soap).to eq(output)
     end
   end
 
   context 'single element array from_soap' do
     let(:input) do
-      { :item => { :value => 'a', :'@xsi:type' => 'tns:String' },
-        :'@xsi:type' => 'tns:ArrayOfString',
-        :'@soap_enc:array_type' => 'tns:String[1]' }
+      { item: { value: 'a', '@xsi:type': 'tns:String' },
+        '@xsi:type': 'tns:ArrayOfString',
+        '@soap_enc:array_type': 'tns:String[1]' }
     end
 
     it 'converts single element array' do
@@ -79,12 +79,12 @@ describe Transip::Soap do
 
   context 'mutli element array from_soap' do
     let(:input) do
-      { :item => [
-        { :value => 'a', :'@xsi:type' => 'tns:String' },
-        { :value => 'b', :'@xsi:type' => 'tns:String' },
+      { item: [
+        { value: 'a', '@xsi:type': 'tns:String' },
+        { value: 'b', '@xsi:type': 'tns:String' },
       ],
-        :'@xsi:type' => 'tns:ArrayOfString',
-        :'@soap_enc:array_type' => 'tns:String[2]' }
+        '@xsi:type': 'tns:ArrayOfString',
+        '@soap_enc:array_type': 'tns:String[2]' }
     end
 
     it 'converts single element array' do

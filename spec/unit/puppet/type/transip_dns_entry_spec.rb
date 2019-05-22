@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Puppet::Type.type(:transip_dns_entry) do
   describe 'when validating attributes' do
-    [:name].each do |param|
+    [:name, :content_handling].each do |param|
       it "has a #{param} parameter" do
         expect(described_class.attrtype(param)).to eq(:param)
       end
@@ -82,7 +82,7 @@ describe Puppet::Type.type(:transip_dns_entry) do
       expect {
         described_class.new(
           name: 'host.example.com/CNAME',
-          content: %w[record1 record2],
+          content: ['record1', 'record2'],
         )
       }.to raise_error(Puppet::Error, %r{The content of a CNAME record cannot have multiple entries})
     end
@@ -91,7 +91,7 @@ describe Puppet::Type.type(:transip_dns_entry) do
       expect {
         described_class.new(
           name: 'host.example.com/A',
-          content: %w[record1 record2],
+          content: ['record1', 'record2'],
         )
       }.not_to raise_error
     end

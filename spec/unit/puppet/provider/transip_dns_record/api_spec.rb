@@ -17,6 +17,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     before(:each) do
       allow(described_class).to receive(:all_entries).and_return({})
     end
+
     it 'returns no instances' do
       expect(described_class.instances.size).to eq(0)
     end
@@ -121,7 +122,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     let(:entry_out) do
       { name: 'example.com/TXT',
         fqdn: 'example.com',
-        content: %w[text1 text2],
+        content: ['text1', 'text2'],
         type: 'TXT',
         expire: '3600' }
     end
@@ -162,14 +163,14 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     let(:com_out) do
       { name: 'example.com/TXT',
         fqdn: 'example.com',
-        content: %w[text1 text2],
+        content: ['text1', 'text2'],
         type: 'TXT',
         expire: '3600' }
     end
     let(:eu_out) do
       { name: 'example.eu/TXT',
         fqdn: 'example.eu',
-        content: %w[text1 text2],
+        content: ['text1', 'text2'],
         type: 'TXT',
         expire: '3600' }
     end
@@ -177,6 +178,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     before(:each) do
       allow(described_class).to receive(:all_entries).and_return(Hash[*entries])
     end
+
     it 'collapses instance' do
       expect(described_class.collapsed_instances).to eq([com_out, eu_out])
     end
@@ -196,6 +198,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     before :each do
       allow(described_class).to receive(:all_entries).and_return(Hash[*entries])
     end
+
     it 'returns one instance' do
       expect(described_class.instances.size).to eq(1)
     end
@@ -226,6 +229,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     before(:each) do
       allow(provider).to receive(:domain_names).and_return(['example.com'])
     end
+
     it 'matches domain' do
       expect(provider.domain).to eq('example.com')
     end
@@ -246,6 +250,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     before :each do
       allow(provider).to receive(:domain_names).and_return(['example.com'])
     end
+
     it 'does not match domain' do
       expect { provider.domain }.to raise_error(Puppet::Error, %r{cannot find domain matching})
     end
@@ -269,6 +274,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     before(:each) do
       allow(provider).to receive(:domain_names).and_return(['example.com', 'example.eu'])
     end
+
     it 'matches domain' do
       expect(provider.domain).to eq('example.eu')
     end
@@ -289,6 +295,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
     before(:each) do
       allow(provider).to receive(:domain_names).and_return(['example.com', 'sub.example.com'])
     end
+
     it 'matches domain' do
       expect(provider.domain).to eq('sub.example.com')
     end
@@ -329,6 +336,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
       allow(provider).to receive(:entries).with('example.com').and_return([entry_present])
       allow(provider).to receive(:set_entries).with('example.com', [entry_present, entry_added])
     end
+
     it 'does not raise error' do
       expect { provider.flush }.not_to raise_error
     end
@@ -363,6 +371,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
       allow(provider).to receive(:entries).with('example.com').and_return([entry_present])
       allow(provider).to receive(:set_entries).with('example.com', [])
     end
+
     it 'does not raise error' do
       expect { provider.flush }.not_to raise_error
     end
@@ -397,6 +406,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
       allow(provider).to receive(:entries).with('example.com').and_return([entry_present])
       allow(provider).to receive(:set_entries).with('example.com', [entry_changed])
     end
+
     it 'does not raise error' do
       expect { provider.flush }.not_to raise_error
     end
@@ -408,7 +418,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
         ensure: :present,
         name: 'example.com/TXT',
         ttl: 3600,
-        content: %w[text1 text2],
+        content: ['text1', 'text2'],
         provider: described_class.name,
       )
     end
@@ -431,6 +441,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
       allow(provider).to receive(:entries).with('example.com').and_return([entry_present])
       allow(provider).to receive(:set_entries).with('example.com', [entry_present, entry_added])
     end
+
     it 'does not raise error' do
       expect { provider.flush }.not_to raise_error
     end
@@ -465,18 +476,19 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
       allow(provider).to receive(:entries).with('example.com').and_return([entry1, entry2])
       allow(provider).to receive(:set_entries).with('example.com', [entry1])
     end
+
     it 'does not raise error' do
       expect { provider.flush }.not_to raise_error
     end
   end
 
-  context 'chnage content' do
+  context 'change content inclusive' do
     let(:resource) do
       Puppet::Type.type(:transip_dns_entry).new(
         ensure: :present,
         name: 'example.com/TXT',
         ttl: 3600,
-        content: %w[text1 text3],
+        content: ['text1', 'text3'],
         provider: described_class.name,
       )
     end
@@ -505,6 +517,49 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
       allow(provider).to receive(:entries).with('example.com').and_return([entry1, entry2])
       allow(provider).to receive(:set_entries).with('example.com', [entry1, entry3])
     end
+
+    it 'does not raise error' do
+      expect { provider.flush }.not_to raise_error
+    end
+  end
+
+  context 'change content minimum' do
+    let(:resource) do
+      Puppet::Type.type(:transip_dns_entry).new(
+        ensure: :present,
+        name: 'example.com/TXT',
+        ttl: 3600,
+        content: ['text1', 'text3'],
+        content_handling: 'minimum',
+        provider: described_class.name,
+      )
+    end
+    let(:provider) { resource.provider }
+    let(:entry1) do
+      { name: '@',
+        content: 'text1',
+        type: 'TXT',
+        expire: 3600 }
+    end
+    let(:entry2) do
+      { name: '@',
+        content: 'text2',
+        type: 'TXT',
+        expire: 3600 }
+    end
+    let(:entry3) do
+      { name: '@',
+        content: 'text3',
+        type: 'TXT',
+        expire: 3600 }
+    end
+
+    before(:each) do
+      allow(provider).to receive(:domain_names).and_return(['example.com'])
+      allow(provider).to receive(:entries).with('example.com').and_return([entry1, entry2])
+      allow(provider).to receive(:set_entries).with('example.com', [entry1, entry2, entry3])
+    end
+
     it 'does not raise error' do
       expect { provider.flush }.not_to raise_error
     end
