@@ -34,6 +34,13 @@ Puppet::Type.newtype(:transip_dns_entry) do
 
       is.to_set == should.to_set
     end
+
+    def should_to_s(newvalue)
+      actual_should = newvalue
+      actual_should += retrieve if @resource[:content_handling] == 'minimum'
+
+      super(actual_should.uniq.sort)
+    end
   end
 
   newparam(:content_handling) do
