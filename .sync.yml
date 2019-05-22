@@ -10,3 +10,7 @@ appveyor.yml:
 
 spec/spec_helper.rb:
   mock_with: ':rspec'
+
+.rubocop.yml:
+  default_configs:
+    inherit_from: .rubocop_todo.yml

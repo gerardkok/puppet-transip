@@ -54,6 +54,6 @@ Puppet::Type.newtype(:transip_dns_entry) do
   end
 
   validate do
-    raise ArgumentError, 'The content of the record must not be blank' if self[:content] && self[:content].empty?
+    raise ArgumentError, 'The content of the record must not be blank' if self[:content]&.empty?
   end
 end

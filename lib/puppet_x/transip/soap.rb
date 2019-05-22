@@ -15,9 +15,9 @@ module Transip
       else
         type = first.class.name.split(':').last
         soaped_options = map { |o| o.to_soap }
-        { :item => { :content! => soaped_options, :'@xsi:type' => "tns:#{type}" },
-          :'@xsi:type' => "tns:ArrayOf#{type}",
-          :'@enc:arrayType' => "tns:#{type}[#{soaped_options.size}]" }
+        { item: { content!: soaped_options, '@xsi:type': "tns:#{type}" },
+          '@xsi:type': "tns:ArrayOf#{type}",
+          '@enc:arrayType': "tns:#{type}[#{soaped_options.size}]" }
       end
     end
 
@@ -66,7 +66,7 @@ module Transip
     ENDPOINT ||= 'api.transip.nl'.freeze
     API_SERVICE ||= 'DomainService'.freeze
     WSDL ||= "https://#{ENDPOINT}/wsdl/?service=#{API_SERVICE}".freeze
-    NAMESPACES ||= { :'xmlns:enc' => 'http://schemas.xmlsoap.org/soap/encoding/' }.freeze
+    NAMESPACES ||= { 'xmlns:enc': 'http://schemas.xmlsoap.org/soap/encoding/' }.freeze
 
     using Transip
 
@@ -100,7 +100,7 @@ module Transip
       end
 
       def message_options(method, api_service, hostname, time, nonce)
-        %W[__method=#{camelize(method)} __service=#{api_service} __hostname=#{hostname} __timestamp=#{time} __nonce=#{nonce}]
+        ["__method=#{camelize(method)}", "__service=#{api_service}", "__hostname=#{hostname}", "__timestamp=#{time}", "__nonce=#{nonce}"]
       end
 
       def serialize(action, api_service, hostname, time, nonce, options = {})
@@ -114,7 +114,7 @@ module Transip
       end
 
       def to_cookie_array(username, mode, time, nonce, api_version, signature)
-        %W[login=#{username} mode=#{mode} timestamp=#{time} nonce=#{nonce} clientVersion=#{api_version} signature=#{signature}]
+        ["login=#{username}", "mode=#{mode}", "timestamp=#{time}", "nonce=#{nonce}", "clientVersion=#{api_version}", "signature=#{signature}"]
       end
 
       def cookies(action, username, mode, api_service, api_version, hostname, private_key, options = {})
@@ -128,9 +128,12 @@ module Transip
     end
 
     def initialize(options = {})
-      key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
-      raise ArgumentError, 'Invalid RSA key' unless key =~ %r{-----BEGIN (RSA )?PRIVATE KEY-----(.*)-----END (RSA )?PRIVATE KEY-----}sm
-      @private_key = OpenSSL::PKey::RSA.new(key)
+      begin
+        key = options[:key] || (options[:key_file] && File.read(options[:key_file]))
+        @private_key = OpenSSL::PKey::RSA.new(key)
+      rescue OpenSSL::PKey::RSAError
+        raise ArgumentError, 'Invalid RSA key'
+      end
 
       @username = options[:username]
       raise ArgumentError, 'The :username and :key options are required' unless @username && key
