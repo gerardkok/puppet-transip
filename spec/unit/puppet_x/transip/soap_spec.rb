@@ -77,7 +77,7 @@ describe Transip::Soap do
     end
   end
 
-  context 'mutli element array from_soap' do
+  context 'multi element array from_soap' do
     let(:input) do
       { item: [
         { value: 'a', '@xsi:type': 'tns:String' },
