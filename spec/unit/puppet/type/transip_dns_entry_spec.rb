@@ -86,25 +86,6 @@ describe Puppet::Type.type(:transip_dns_entry) do
       }.not_to raise_error
     end
 
-    it 'does not allow a CNAME record with multiple content entries' do
-      expect {
-        described_class.new(
-          name: 'host.example.com/CNAME',
-          content: ['record1', 'record2'],
-        )
-      }.to raise_error(Puppet::Error, %r{The content of a CNAME record must consist of a single entry})
-    end
-
-    it 'does not allow a CNAME record with content_handling minimum' do
-      expect {
-        described_class.new(
-          name: 'host.example.com/CNAME',
-          content_handling: :minimum,
-          content: ['record1'],
-        )
-      }.to raise_error(Puppet::Error, %r{The content of a CNAME record can only be modified when content_handling is inclusive})
-    end
-
     it 'allows an A record with multiple content entries' do
       expect {
         described_class.new(

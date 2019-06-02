@@ -73,9 +73,5 @@ Puppet::Type.newtype(:transip_dns_entry) do
 
   validate do
     raise ArgumentError, 'The content of the record must not be blank' if self[:content_handling] == 'inclusive' && self[:content].empty?
-    if self[:type] == 'CNAME'
-      raise ArgumentError, 'The content of a CNAME record must consist of a single entry' unless self[:content].length == 1
-      raise ArgumentError, 'The content of a CNAME record can only be modified when content_handling is inclusive' unless self[:content_handling] == 'inclusive'
-    end
   end
 end

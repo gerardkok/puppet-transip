@@ -208,7 +208,6 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
         name: 'host.example.com/A',
         fqdn: 'host.example.com',
         content: ['192.0.2.1'],
-        content_handling: 'inclusive',
         type: 'A',
         ttl: '3600',
       )

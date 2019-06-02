@@ -6,7 +6,7 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
   mk_resource_methods
   def self.instances
     collapsed_instances.map do |e|
-      new(ensure: :present, name: e[:name], fqdn: e[:fqdn], content: e[:content], content_handling: 'inclusive', type: e[:type], ttl: e[:expire])
+      new(ensure: :present, name: e[:name], fqdn: e[:fqdn], content: e[:content], type: e[:type], ttl: e[:expire])
     end
   end
 
