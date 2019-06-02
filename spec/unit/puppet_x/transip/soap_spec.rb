@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'puppet_x/transip/soap'
 
 describe Transip::Soap do
   using Transip

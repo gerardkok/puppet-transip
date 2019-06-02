@@ -454,6 +454,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
         name: 'example.com/TXT',
         ttl: 3600,
         content: 'text1',
+        content_handling: 'inclusive',
         provider: described_class.name,
       )
     end
@@ -489,6 +490,7 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
         name: 'example.com/TXT',
         ttl: 3600,
         content: ['text1', 'text3'],
+        content_handling: 'inclusive',
         provider: described_class.name,
       )
     end
@@ -558,6 +560,36 @@ describe Puppet::Type.type(:transip_dns_entry).provider(:api) do
       allow(provider).to receive(:domain_names).and_return(['example.com'])
       allow(provider).to receive(:entries).with('example.com').and_return([entry1, entry2])
       allow(provider).to receive(:set_entries).with('example.com', [entry1, entry2, entry3])
+    end
+
+    it 'does not raise error' do
+      expect { provider.flush }.not_to raise_error
+    end
+  end
+
+  context 'adding empty content to nonexisting record should not add anything' do
+    let(:resource) do
+      Puppet::Type.type(:transip_dns_entry).new(
+        ensure: :present,
+        name: 'www.example.com/TXT',
+        ttl: 3600,
+        content: [],
+        content_handling: 'minimum',
+        provider: described_class.name,
+      )
+    end
+    let(:provider) { resource.provider }
+    let(:entry1) do
+      { name: '@',
+        content: 'text1',
+        type: 'TXT',
+        expire: 3600 }
+    end
+
+    before(:each) do
+      allow(provider).to receive(:domain_names).and_return(['example.com'])
+      allow(provider).to receive(:entries).with('example.com').and_return([entry1])
+      allow(provider).to receive(:set_entries).with('example.com', [entry1])
     end
 
     it 'does not raise error' do
