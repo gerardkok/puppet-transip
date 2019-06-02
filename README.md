@@ -1,7 +1,5 @@
 # puppet-transip
 
-[![BCH compliance](https://bettercodehub.com/edge/badge/gerardkok/puppet-transip)](https://bettercodehub.com)
-
 #### Table of Contents
 
 1. [Overview](#overview)
@@ -37,9 +35,8 @@ The provider uses the TransIP [API](https://www.transip.nl/transip/api/) to hand
 * The public ip address of the instance you run this module on needs to be whitelisted.
 * The [savon](http://savonrb.com) ruby gem.
 
-For Puppet 4 and 5, the savon gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. You can do this manually as follows:
+For Puppet 5, the savon gem needs to be installed in `/opt/puppetlabs/puppet/lib/ruby/gems` on the instance you enable this module on. You can do this manually as follows:
 ```bash
-$ sudo /opt/puppetlabs/puppet/bin/gem install rack -v 1.6.9 # for puppet 4
 $ sudo /opt/puppetlabs/puppet/bin/gem install savon
 ```
 Alternatively, you can set `manage_gems` to 'true', to have the module install the necessary gems for you.
@@ -157,7 +154,11 @@ transip_dns_entry {
 ```
 will result in two A records for 'www.my.domain' in TransIP's dns tables.
 
-If `content` is empty, or if `type` is 'CNAME' and `content` has more than one entry, an error is raised.
+If `content` is empty and `content_handling` is 'inclusive', or if `type` is 'CNAME' and `content` doesn't have precisely one entry, or `content_handling` is not 'minimum', an error is raised.
+
+##### `content_handling`
+
+Possible values: 'minimum', 'inclusive'. Default: 'minimum'. Whether to treat the value of `content` as a complete list ('inclusive'), and remove records with content not in that list, or to treat the value of `content` as a list that should minimally exist ('minimum'), and not touch records with content not in the list.
 
 ##### `ttl`
 
@@ -171,4 +172,4 @@ The locations of the credentials file is currently fixed to `transip.yaml` in th
 
 ## Development
 
-Run `rake spec` to run all tests. The [savon](http://savonrb.com) gem is not required to run the tests.
+Run `pdk test unit` to run all tests. The [savon](http://savonrb.com) gem is not required to run the tests.

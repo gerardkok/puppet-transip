@@ -1,3 +1,12 @@
+## Release 0.4.0
+
+- PDK to 1.10.0
+- fixed rspec tests
+- ruby refinements fix
+- dropped support for puppet 4
+- dropped support for macOS 10.13
+- support for 'minimum' content handling: adding records without modifying existing records with equal name and type
+
 ## Release 0.3.1
 
 - converted to PDK

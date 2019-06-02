@@ -36,21 +36,31 @@ Puppet::Type.type(:transip_dns_entry).provide(:api) do
 
   def flush
     entryname = entryname(@resource[:fqdn], domain)
-    entries = entries(domain).reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
+    existing_entries = entries(domain)
+    entries_to_keep = existing_entries.reject { |e| e[:name] == entryname && e[:type] == @resource[:type] }
     unless @property_hash[:ensure] == :absent
-      @resource[:content].to_set.map do |c|
-        entries << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
+      content = content_of_entry(existing_entries, entryname)
+      content.each do |c|
+        entries_to_keep << { name: entryname, content: c, type: @resource[:type], expire: @resource[:ttl] }
       end
     end
-    set_entries(domain, entries)
+    set_entries(domain, entries_to_keep)
     @property_hash = @resource.to_hash
+  end
+
+  def content_of_entry(entries, entryname)
+    return @resource[:content].to_set if @resource[:content_handling] == 'inclusive'
+
+    existing_content = entries.select { |e| e[:name] == entryname && e[:type] == @resource[:type] }.map { |e| e[:content] }
+    (existing_content + @resource[:content]).to_set
   end
 
   def domain
     @domain ||= begin
       domains_re = %r{^.*?(#{domain_names.join('|').gsub('.', '\.')})$}
       m = domains_re.match(@resource[:fqdn])
-      raise Puppet::Error, "cannot find domain matching #{@resource[:name]}" if m.nil?
+      raise Puppet::Error, "cannot find domain matching #{@resource[:name]}" unless m
+
       m[1]
     end
   end

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Puppet::Type.type(:transip_dns_entry) do
   describe 'when validating attributes' do
-    [:name].each do |param|
+    [:name, :content_handling].each do |param|
       it "has a #{param} parameter" do
         expect(described_class.attrtype(param)).to eq(:param)
       end
@@ -60,13 +60,21 @@ describe Puppet::Type.type(:transip_dns_entry) do
       }.to raise_error(Puppet::Error, %r{An empty record is not allowed})
     end
 
-    it 'does not allow an empty array as content' do
+    it 'does not allow an empty array as content, when content_handling is inclusive' do
       expect {
         described_class.new(
           name: 'host.example.com/A',
-          content: [],
+          content_handling: :inclusive,
         )
       }.to raise_error(Puppet::Error, %r{The content of the record must not be blank})
+    end
+
+    it 'allows an empty array as content, when content_handling is minimum' do
+      expect {
+        described_class.new(
+          name: 'host.example.com/A',
+        )
+      }.not_to raise_error
     end
 
     it 'allows a CNAME record with one content entry' do
@@ -78,20 +86,11 @@ describe Puppet::Type.type(:transip_dns_entry) do
       }.not_to raise_error
     end
 
-    it 'does not allow a CNAME record with multiple content entries' do
-      expect {
-        described_class.new(
-          name: 'host.example.com/CNAME',
-          content: %w[record1 record2],
-        )
-      }.to raise_error(Puppet::Error, %r{The content of a CNAME record cannot have multiple entries})
-    end
-
     it 'allows an A record with multiple content entries' do
       expect {
         described_class.new(
           name: 'host.example.com/A',
-          content: %w[record1 record2],
+          content: ['record1', 'record2'],
         )
       }.not_to raise_error
     end

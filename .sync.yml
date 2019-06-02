@@ -1,0 +1,16 @@
+---
+.travis.yml:
+  delete: true
+
+appveyor.yml:
+  delete: true
+
+.gitlab-ci.yml:
+  unmanaged: true
+
+spec/spec_helper.rb:
+  mock_with: ':rspec'
+
+.rubocop.yml:
+  default_configs:
+    inherit_from: .rubocop_todo.yml
