@@ -26,7 +26,6 @@ Puppet::Type.newtype(:transip_dns_entry) do
 
     validate do |value|
       raise ArgumentError, 'An empty record is not allowed' if value.empty?
-      raise ArgumentError, 'The content of a CNAME record cannot have multiple entries' if value.length > 1 && @resource[:type] == 'CNAME'
     end
 
     def insync?(is)
@@ -39,6 +38,8 @@ Puppet::Type.newtype(:transip_dns_entry) do
       newvalue = (newvalue + currentvalue).uniq.sort if @resource[:content_handling] == 'minimum'
       super(currentvalue, newvalue)
     end
+
+    defaultto []
   end
 
   newparam(:content_handling) do
@@ -48,7 +49,7 @@ Puppet::Type.newtype(:transip_dns_entry) do
 
     munge(&:to_s)
 
-    defaultto :inclusive
+    defaultto :minimum
   end
 
   newproperty(:ttl) do
@@ -71,6 +72,7 @@ Puppet::Type.newtype(:transip_dns_entry) do
   end
 
   validate do
-    raise ArgumentError, 'The content of the record must not be blank' if self[:content]&.empty?
+    raise ArgumentError, 'The content of the record must not be blank' if self[:content_handling] == 'inclusive' && self[:content].empty?
+    raise ArgumentError, 'The content of a CNAME record cannot have multiple entries' if self[:content].length > 1 && self[:type] == 'CNAME'
   end
 end

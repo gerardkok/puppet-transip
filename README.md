@@ -157,11 +157,11 @@ transip_dns_entry {
 ```
 will result in two A records for 'www.my.domain' in TransIP's dns tables.
 
-If `content` is empty, or if `type` is 'CNAME' and `content` has more than one entry, an error is raised.
+If `content` is empty and `content_handling` is 'inclusive', or if `type` is 'CNAME' and `content` has more than one entry, an error is raised.
 
 ##### `content_handling`
 
-Possible values: 'minimum', 'inclusive'. Default: 'inclusive'. Whether to treat the value of `content` as a complete list ('inclusive'), and remove records with content not in that list, or to treat the value of `content` as a list that should minimally exist ('minimum'), and not touch records with content not in the list.
+Possible values: 'minimum', 'inclusive'. Default: 'minimum'. Whether to treat the value of `content` as a complete list ('inclusive'), and remove records with content not in that list, or to treat the value of `content` as a list that should minimally exist ('minimum'), and not touch records with content not in the list.
 
 ##### `ttl`
 
